@@ -3,7 +3,6 @@ package main
 import (
 	"BugNetSyncService/BugNetService"
 	"BugNetSyncService/TfsService"
-	"encoding/json"
 	"log"
 	"net/http"
 )
@@ -52,18 +51,27 @@ func main() {
 
 	// test GetWorkItemsRelations
 	log.Print("GetWorkItemsRelations")
+	tfsIds := TfsService.TfsIds{Ids: []int{480565}}
 	var tfsService TfsService.TfsService = TfsService.TfsService{BaseUri: config.TfsBaseUri, АuthorizationToken: config.TfsАuthorizationToken, Client: &http.Client{}}
-	res, err := tfsService.GetWorkItemsRelations([]int{480565}, "System.LinkTypes.Related")
+	rel, err := tfsService.GetWorkItemsRelations(tfsIds, "System.LinkTypes.Related")
 	if err != nil {
 		log.Print("Error: ", err.Error())
 	} else {
 		// log.Print(res)
-		relations := TfsService.TfsRelations{}
-		err := json.Unmarshal([]byte(res), &relations)
+		log.Print("Related: ", rel)
+
+		tfsIds.AddTargets(rel)
+		log.Print("tfsIds: ", tfsIds)
+
+		// get child relations
+		rel, err := tfsService.GetWorkItemsRelations(tfsIds, "System.LinkTypes.Hierarchy-Forward")
 		if err != nil {
 			log.Print("Error: ", err.Error())
 		} else {
-			log.Print(relations)
+			log.Print("Child: ", rel)
+
+			tfsIds.AddTargets(rel)
+			log.Print("tfsIds: ", tfsIds)
 		}
 	}
 
