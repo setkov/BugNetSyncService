@@ -7,6 +7,8 @@ import (
 
 type Config struct {
 	BugNetConnectionString string
+	TfsBaseUri             string
+	TfsАuthorizationToken  string
 }
 
 // Load config from json file

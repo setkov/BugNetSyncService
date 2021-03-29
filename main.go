@@ -2,7 +2,10 @@ package main
 
 import (
 	"BugNetSyncService/BugNetService"
+	"BugNetSyncService/TfsService"
+	"encoding/json"
 	"log"
+	"net/http"
 )
 
 func main() {
@@ -45,6 +48,23 @@ func main() {
 		log.Print("Error: ", err.Error())
 	} else {
 		log.Print(mes.Link, mes.Date, mes.IssueId, mes.TfsId, mes.User, mes.Operation, mes.DateSync)
+	}
+
+	// test GetWorkItemsRelations
+	log.Print("GetWorkItemsRelations")
+	var tfsService TfsService.TfsService = TfsService.TfsService{BaseUri: config.TfsBaseUri, АuthorizationToken: config.TfsАuthorizationToken, Client: &http.Client{}}
+	res, err := tfsService.GetWorkItemsRelations([]int{480565}, "System.LinkTypes.Related")
+	if err != nil {
+		log.Print("Error: ", err.Error())
+	} else {
+		// log.Print(res)
+		relations := TfsService.TfsRelations{}
+		err := json.Unmarshal([]byte(res), &relations)
+		if err != nil {
+			log.Print("Error: ", err.Error())
+		} else {
+			log.Print(relations)
+		}
 	}
 
 	// test PushMessageDateSync
