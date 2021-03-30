@@ -21,7 +21,7 @@ func main() {
 	}
 
 	log.Print("BugNet data service open...")
-	var bugNetService BugNetService.DataService = BugNetService.DataService{ConnectionString: config.BugNetConnectionString}
+	bugNetService := BugNetService.DataService{ConnectionString: config.BugNetConnectionString}
 	err = bugNetService.Open()
 	if err != nil {
 		log.Fatal("Error: ", err.Error())
@@ -51,9 +51,10 @@ func main() {
 
 	// test GetWorkItemsRelations
 	log.Print("GetWorkItemsRelations")
+	tfsService := TfsService.TfsService{BaseUri: config.TfsBaseUri, АuthorizationToken: config.TfsАuthorizationToken, Client: &http.Client{}}
 	tfsIds := TfsService.TfsIds{Ids: []int{480565}}
-	var tfsService TfsService.TfsService = TfsService.TfsService{BaseUri: config.TfsBaseUri, АuthorizationToken: config.TfsАuthorizationToken, Client: &http.Client{}}
-	rel, err := tfsService.GetWorkItemsRelations(tfsIds, "System.LinkTypes.Related")
+	var rel TfsService.TfsRelations
+	err = rel.Load(&tfsService, tfsIds, "System.LinkTypes.Related")
 	if err != nil {
 		log.Print("Error: ", err.Error())
 	} else {
@@ -64,7 +65,8 @@ func main() {
 		log.Print("tfsIds: ", tfsIds)
 
 		// get child relations
-		rel, err := tfsService.GetWorkItemsRelations(tfsIds, "System.LinkTypes.Hierarchy-Forward")
+		var rel TfsService.TfsRelations
+		err = rel.Load(&tfsService, tfsIds, "System.LinkTypes.Hierarchy-Forward")
 		if err != nil {
 			log.Print("Error: ", err.Error())
 		} else {
@@ -72,6 +74,16 @@ func main() {
 
 			tfsIds.AddTargets(rel)
 			log.Print("tfsIds: ", tfsIds)
+
+			// get tfs work items
+			fields := []string{"System.WorkItemType", "System.State"}
+			var items TfsService.TfsWorkItems
+			err = items.Load(&tfsService, tfsIds, fields)
+			if err != nil {
+				log.Print("Error: ", err.Error())
+			} else {
+				log.Print("WorkItems: ", items)
+			}
 		}
 	}
 

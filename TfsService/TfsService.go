@@ -7,8 +7,6 @@ import (
 	"net/http"
 )
 
-const ApiVersion = "api-version=5.0"
-
 // Tfs sercvice
 type TfsService struct {
 	BaseUri            string
@@ -16,14 +14,9 @@ type TfsService struct {
 	Client             *http.Client
 }
 
-// Gets the results of the query given its WIQL
-func (s *TfsService) QueryWiql(query string) (string, error) {
-	body, err := json.Marshal(map[string]string{"query": query})
-	if err != nil {
-		return "", err
-	}
-
-	req, err := http.NewRequest("POST", s.BaseUri+"_apis/wit/wiql?"+ApiVersion, bytes.NewBuffer(body))
+// Do request
+func (s *TfsService) DoRequest(method string, requestUrl string, body []byte) (string, error) {
+	req, err := http.NewRequest(method, s.BaseUri+requestUrl+"?api-version=5.0", bytes.NewBuffer(body))
 	if err != nil {
 		return "", err
 	}
@@ -43,20 +36,30 @@ func (s *TfsService) QueryWiql(query string) (string, error) {
 	return string(bytes), nil
 }
 
-// Get work items relations
-func (s *TfsService) GetWorkItemsRelations(tfsIds TfsIds, linkType string) (TfsRelations, error) {
-	var rel = TfsRelations{}
-
-	query := "SELECT System.Id FROM WorkItemLinks WHERE Source.System.Id in(" + tfsIds.JoinToString(",") + ") and System.Links.LinkType='" + linkType + "'"
-	res, err := s.QueryWiql(query)
+// Gets the results of the query given its WIQL
+func (s *TfsService) QueryWiql(query string) (string, error) {
+	body, err := json.Marshal(map[string]interface{}{"query": query})
 	if err != nil {
-		return rel, err
+		return "", err
 	}
 
-	err = json.Unmarshal([]byte(res), &rel)
+	res, err := s.DoRequest("POST", "_apis/wit/wiql", body)
 	if err != nil {
-		return rel, err
+		return "", err
+	}
+	return res, nil
+}
+
+// Get work items batch
+func (s *TfsService) GetWorkItemsBatch(ids TfsIds, fields []string) (string, error) {
+	body, err := json.Marshal(map[string]interface{}{"ids": ids.Ids, "fields": fields, "errorPolicy": "Omit"})
+	if err != nil {
+		return "", err
 	}
 
-	return rel, nil
+	res, err := s.DoRequest("POST", "_apis/wit/workitemsbatch", body)
+	if err != nil {
+		return "", err
+	}
+	return res, nil
 }
