@@ -12,7 +12,7 @@ func main() {
 	log.Print("BugNetSyncService started.")
 
 	log.Print("Load configuration...")
-	var config Config = Config{}
+	var config Config
 	err = config.Load()
 	if err != nil {
 		log.Fatal("Error: ", err.Error())
