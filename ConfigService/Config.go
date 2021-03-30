@@ -1,4 +1,4 @@
-package main
+package ConfigService
 
 import (
 	"encoding/json"
@@ -17,6 +17,7 @@ func (c *Config) Load() error {
 	if err != nil {
 		return err
 	}
+
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&c)
 	if err != nil {

@@ -2,18 +2,18 @@ package main
 
 import (
 	"BugNetSyncService/BugNetService"
+	"BugNetSyncService/ConfigService"
 	"BugNetSyncService/TfsService"
 	"log"
 	"net/http"
 )
 
 func main() {
-	var err error
 	log.Print("BugNetSyncService started.")
 
 	log.Print("Load configuration...")
-	var config Config
-	err = config.Load()
+	var config ConfigService.Config
+	err := config.Load()
 	if err != nil {
 		log.Fatal("Error: ", err.Error())
 	} else {
