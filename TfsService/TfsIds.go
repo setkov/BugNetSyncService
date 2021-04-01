@@ -29,14 +29,14 @@ func (i *TfsIds) AddTargets(relations TfsRelations) {
 }
 
 // Convert to string with separator
-func (i *TfsIds) JoinToString(sep string) string {
+func (i *TfsIds) JoinToString(separator string) string {
 	if len(i.Ids) == 0 {
 		return ""
 	}
 
-	b := make([]string, len(i.Ids))
-	for i, v := range i.Ids {
-		b[i] = strconv.Itoa(v)
+	ids := make([]string, len(i.Ids))
+	for i, id := range i.Ids {
+		ids[i] = strconv.Itoa(id)
 	}
-	return strings.Join(b, sep)
+	return strings.Join(ids, separator)
 }

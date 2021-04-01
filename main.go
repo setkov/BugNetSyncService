@@ -5,7 +5,6 @@ import (
 	"BugNetSyncService/ConfigService"
 	"BugNetSyncService/TfsService"
 	"log"
-	"net/http"
 )
 
 func main() {
@@ -49,42 +48,18 @@ func main() {
 		log.Print(mes.Link, mes.Date, mes.IssueId, mes.TfsId, mes.User, mes.Operation, mes.DateSync)
 	}
 
-	// test GetWorkItemsRelations
-	log.Print("GetWorkItemsRelations")
-	tfsService := TfsService.TfsService{BaseUri: config.TfsBaseUri, АuthorizationToken: config.TfsАuthorizationToken, Client: &http.Client{}}
+	// test GetWorkItemsRelated
+	log.Print("GetWorkItemsRelated")
+	tfsService := TfsService.NewTfsService(config.TfsBaseUri, config.TfsАuthorizationToken)
+	tfsProvider := TfsService.NewTfsProvider(&tfsService)
+	//
 	tfsIds := TfsService.TfsIds{Ids: []int{480565}}
-	var rel TfsService.TfsRelations
-	err = rel.Load(&tfsService, tfsIds, "System.LinkTypes.Related")
+	fields := []string{"System.WorkItemType", "System.State"}
+	tfsWorkItems, err := tfsProvider.GetWorkItemsRelated(tfsIds, fields)
 	if err != nil {
 		log.Print("Error: ", err.Error())
 	} else {
-		// log.Print(res)
-		log.Print("Related: ", rel)
-
-		tfsIds.AddTargets(rel)
-		log.Print("tfsIds: ", tfsIds)
-
-		// get child relations
-		var rel TfsService.TfsRelations
-		err = rel.Load(&tfsService, tfsIds, "System.LinkTypes.Hierarchy-Forward")
-		if err != nil {
-			log.Print("Error: ", err.Error())
-		} else {
-			log.Print("Child: ", rel)
-
-			tfsIds.AddTargets(rel)
-			log.Print("tfsIds: ", tfsIds)
-
-			// get tfs work items
-			fields := []string{"System.WorkItemType", "System.State"}
-			var items TfsService.TfsWorkItems
-			err = items.Load(&tfsService, tfsIds, fields)
-			if err != nil {
-				log.Print("Error: ", err.Error())
-			} else {
-				log.Print("WorkItems: ", items)
-			}
-		}
+		log.Print("WorkItems: ", tfsWorkItems)
 	}
 
 	// test PushMessageDateSync

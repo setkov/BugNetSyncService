@@ -14,8 +14,17 @@ type TfsService struct {
 	Client             *http.Client
 }
 
+// New tfs service
+func NewTfsService(baseUri string, authorizationToken string) TfsService {
+	return TfsService{
+		BaseUri:            baseUri,
+		АuthorizationToken: authorizationToken,
+		Client:             &http.Client{},
+	}
+}
+
 // Do request
-func (s *TfsService) DoRequest(method string, requestUrl string, body []byte) (string, error) {
+func (s *TfsService) Request(method string, requestUrl string, body []byte) (string, error) {
 	req, err := http.NewRequest(method, s.BaseUri+requestUrl+"?api-version=5.0", bytes.NewBuffer(body))
 	if err != nil {
 		return "", err
@@ -43,7 +52,7 @@ func (s *TfsService) QueryWiql(query string) (string, error) {
 		return "", err
 	}
 
-	res, err := s.DoRequest("POST", "_apis/wit/wiql", body)
+	res, err := s.Request("POST", "_apis/wit/wiql", body)
 	if err != nil {
 		return "", err
 	}
@@ -57,7 +66,7 @@ func (s *TfsService) GetWorkItemsBatch(ids TfsIds, fields []string) (string, err
 		return "", err
 	}
 
-	res, err := s.DoRequest("POST", "_apis/wit/workitemsbatch", body)
+	res, err := s.Request("POST", "_apis/wit/workitemsbatch", body)
 	if err != nil {
 		return "", err
 	}
