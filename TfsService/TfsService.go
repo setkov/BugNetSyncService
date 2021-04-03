@@ -1,74 +1,62 @@
 package TfsService
 
-import (
-	"bytes"
-	"encoding/json"
-	"io/ioutil"
-	"net/http"
-)
+type TfsProvider interface {
+	GetRelations(ids TfsIds, linkType string) (TfsRelations, error)
+	GetWorkItems(ids TfsIds, fields []string) (TfsWorkItems, error)
+	UpdateWorkItem(id int, patch TfsPatchDocument) (TfsWorkItem, error)
+}
 
 // Tfs sercvice
-type TfsService struct {
-	BaseUri            string
-	АuthorizationToken string
-	Client             *http.Client
+type tfsService struct {
+	Provider TfsProvider
 }
 
 // New tfs service
-func NewTfsService(baseUri string, authorizationToken string) TfsService {
-	return TfsService{
-		BaseUri:            baseUri,
-		АuthorizationToken: authorizationToken,
-		Client:             &http.Client{},
-	}
+func NewTfsService(p TfsProvider) *tfsService {
+	return &tfsService{Provider: p}
 }
 
-// Do request
-func (s *TfsService) Request(method string, requestUrl string, body []byte) (string, error) {
-	req, err := http.NewRequest(method, s.BaseUri+requestUrl+"?api-version=5.0", bytes.NewBuffer(body))
-	if err != nil {
-		return "", err
-	}
-	req.SetBasicAuth(s.АuthorizationToken, s.АuthorizationToken)
-	req.Header.Add("Content-Type", "application/json")
+// Get work items with related
+func (s *tfsService) GetWorkItemsRelated(ids TfsIds, fields []string) (TfsWorkItems, error) {
+	var workItems TfsWorkItems
 
-	resp, err := s.Client.Do(req)
+	// Get related relations
+	relations, err := s.Provider.GetRelations(ids, "System.LinkTypes.Related")
 	if err != nil {
-		return "", err
+		return workItems, nil
 	}
-	defer resp.Body.Close()
+	ids.AddTargets(relations)
 
-	bytes, err := ioutil.ReadAll(resp.Body)
+	// Get child relations
+	relations, err = s.Provider.GetRelations(ids, "System.LinkTypes.Hierarchy-Forward")
 	if err != nil {
-		return "", err
+		return workItems, nil
 	}
-	return string(bytes), nil
+	ids.AddTargets(relations)
+
+	// Get work items
+	workItems, err = s.Provider.GetWorkItems(ids, fields)
+	if err != nil {
+		return workItems, nil
+	}
+
+	return workItems, nil
 }
 
-// Gets the results of the query given its WIQL
-func (s *TfsService) QueryWiql(query string) (string, error) {
-	body, err := json.Marshal(map[string]interface{}{"query": query})
-	if err != nil {
-		return "", err
+// Add work item comment
+func (s *tfsService) AddWorkItemComment(id int, comment string) (TfsWorkItem, error) {
+	var workItem TfsWorkItem
+
+	if len(comment) > 1048576 {
+		comment = comment[0 : 1048576-1]
 	}
 
-	res, err := s.Request("POST", "_apis/wit/wiql", body)
-	if err != nil {
-		return "", err
-	}
-	return res, nil
-}
+	operation := TfsPatchOperation{Op: "add", Path: "/fields/System.History", Value: comment}
+	patchDocument := TfsPatchDocument{Operations: []TfsPatchOperation{operation}}
 
-// Get work items batch
-func (s *TfsService) GetWorkItemsBatch(ids TfsIds, fields []string) (string, error) {
-	body, err := json.Marshal(map[string]interface{}{"ids": ids.Ids, "fields": fields, "errorPolicy": "Omit"})
+	workItem, err := s.Provider.UpdateWorkItem(id, patchDocument)
 	if err != nil {
-		return "", err
+		return workItem, err
 	}
-
-	res, err := s.Request("POST", "_apis/wit/workitemsbatch", body)
-	if err != nil {
-		return "", err
-	}
-	return res, nil
+	return workItem, nil
 }
