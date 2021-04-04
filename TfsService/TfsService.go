@@ -7,17 +7,17 @@ type TfsProvider interface {
 }
 
 // Tfs sercvice
-type tfsService struct {
+type TfsService struct {
 	Provider TfsProvider
 }
 
 // New tfs service
-func NewTfsService(p TfsProvider) *tfsService {
-	return &tfsService{Provider: p}
+func NewTfsService(p TfsProvider) *TfsService {
+	return &TfsService{Provider: p}
 }
 
 // Get work items with related
-func (s *tfsService) GetWorkItemsRelated(ids TfsIds, fields []string) (TfsWorkItems, error) {
+func (s *TfsService) GetWorkItemsRelated(ids TfsIds, fields []string) (TfsWorkItems, error) {
 	var workItems TfsWorkItems
 
 	// Get related relations
@@ -44,7 +44,7 @@ func (s *tfsService) GetWorkItemsRelated(ids TfsIds, fields []string) (TfsWorkIt
 }
 
 // Add work item comment
-func (s *tfsService) AddWorkItemComment(id int, comment string) (TfsWorkItem, error) {
+func (s *TfsService) AddWorkItemComment(id int, comment string) (TfsWorkItem, error) {
 	var workItem TfsWorkItem
 
 	if len(comment) > 1048576 {
