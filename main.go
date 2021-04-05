@@ -21,7 +21,7 @@ func main() {
 	}
 
 	log.Print("BugNet data service open...")
-	bugNetService := BugNetService.DataService{ConnectionString: config.BugNetConnectionString}
+	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString)
 	err = bugNetService.Open()
 	if err != nil {
 		log.Fatal("Error: ", err.Error())
@@ -31,7 +31,7 @@ func main() {
 
 	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsАuthorizationToken)
 	tfsService := TfsService.NewTfsService(tfsProvider)
-	syncService := SyncService.NewSyncService(&bugNetService, tfsService)
+	syncService := SyncService.NewSyncService(bugNetService, tfsService)
 
 	log.Print("Sync message...")
 	err = syncService.SyncMessage()

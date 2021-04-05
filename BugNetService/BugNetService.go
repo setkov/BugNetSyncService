@@ -12,6 +12,11 @@ type DataService struct {
 	Db               *sql.DB
 }
 
+// New data service
+func NewDataService(connectionString string) *DataService{
+	return &DataService{ConnectionString: connectionString}
+}
+
 // Open data connection
 func (s *DataService) Open() error {
 	var err error
