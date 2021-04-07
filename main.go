@@ -5,7 +5,9 @@ import (
 	"BugNetSyncService/ConfigService"
 	"BugNetSyncService/SyncService"
 	"BugNetSyncService/TfsService"
+	"fmt"
 	"log"
+	"time"
 )
 
 func main() {
@@ -17,7 +19,7 @@ func main() {
 	if err != nil {
 		log.Fatal("Error: ", err.Error())
 	} else {
-		log.Print("Configuration loaded.")
+		log.Print("loaded.")
 	}
 
 	log.Print("BugNet data service open...")
@@ -26,20 +28,19 @@ func main() {
 	if err != nil {
 		log.Fatal("Error: ", err.Error())
 	} else {
-		log.Print("BugNet conected.")
+		log.Print("conected.")
 	}
 
 	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsАuthorizationToken)
 	tfsService := TfsService.NewTfsService(tfsProvider)
-	syncService := SyncService.NewSyncService(bugNetService, tfsService)
 
-	log.Print("Sync message...")
-	err = syncService.SyncMessage()
-	if err != nil {
-		log.Print("Error: ", err.Error())
-	} else {
-		log.Print("Complited.")
-	}
+	syncService := SyncService.NewSyncService(bugNetService, tfsService)
+	syncService.Start()
+
+	fmt.Scanln()
+	syncService.Stop()
+	// wait sync service stoped
+	time.Sleep(1 * time.Second)
 
 	log.Print("BugNetSyncService stoped.")
 }

@@ -13,16 +13,53 @@ import (
 type SyncService struct {
 	DataService *BugNetService.DataService
 	TfsService  *TfsService.TfsService
+	stop        chan bool
 }
 
 // New sync service
 func NewSyncService(b *BugNetService.DataService, t *TfsService.TfsService) *SyncService {
-	return &SyncService{DataService: b, TfsService: t}
+	return &SyncService{
+		DataService: b,
+		TfsService:  t,
+		stop:        make(chan bool),
+	}
+}
+
+// Start sync
+func (s *SyncService) Start() {
+	log.Print("Sync started.")
+	go func() {
+		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+		for {
+			log.Print("Sync messages...")
+			for {
+				err := s.syncMessage()
+				if err != nil {
+					log.Print("Error: ", err.Error())
+					break
+				}
+			}
+			log.Print("complited.")
+
+			select {
+			case <-ticker.C:
+				continue
+			case <-s.stop:
+				log.Print("Sync stoped.")
+				return
+			}
+		}
+	}()
+}
+
+// Stop sync
+func (s *SyncService) Stop() {
+	s.stop <- true
 }
 
 // Sync message
-func (s *SyncService) SyncMessage() error {
-	// Pull message
+func (s *SyncService) syncMessage() error {
 	log.Print("PullMessage")
 	message, err := s.DataService.PullMessage()
 	if err != nil {
@@ -33,7 +70,6 @@ func (s *SyncService) SyncMessage() error {
 	comment := fmt.Sprintf("<p><i>%v %v %v:</i></p>%v", message.Date.Format("2006-01-02 15:04"), message.User.String, message.Operation.String, message.Message.String)
 	log.Print("Comment: ", comment)
 
-	// Get work items related
 	log.Print("GetWorkItemsRelated")
 	tfsIds := TfsService.TfsIds{Ids: []int{message.TfsId}}
 	fields := []string{"System.WorkItemType", "System.State"}
@@ -44,11 +80,9 @@ func (s *SyncService) SyncMessage() error {
 		log.Print("Related WorkItems: ", tfsWorkItems)
 	}
 
-	// Sync work items
 	for _, tfsWorkItem := range tfsWorkItems.Items {
 		if (tfsWorkItem.Fields.WorkItemType == "Issue" || tfsWorkItem.Fields.WorkItemType == "Requirement" || tfsWorkItem.Fields.WorkItemType == "Bug") &&
 			(tfsWorkItem.Fields.State == "Active" || tfsWorkItem.Fields.State == "Proposed" || tfsWorkItem.Fields.State == "Resolved") {
-			// add work item comment
 			log.Print("AddWorkItemComment")
 			workItem, err := s.TfsService.AddWorkItemComment(tfsWorkItem.Id, comment)
 			if err != nil {
@@ -59,7 +93,6 @@ func (s *SyncService) SyncMessage() error {
 		}
 	}
 
-	//Push message date sync
 	log.Print("PushMessageDateSync")
 	_, offset := time.Now().Zone()
 	loc := time.FixedZone("UTC", offset)
