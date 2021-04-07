@@ -29,7 +29,7 @@ func NewSyncService(b *BugNetService.DataService, t *TfsService.TfsService) *Syn
 func (s *SyncService) Start() {
 	log.Print("Sync started.")
 	go func() {
-		ticker := time.NewTicker(1 * time.Minute)
+		ticker := time.NewTicker(5 * time.Minute)
 		defer ticker.Stop()
 		for {
 			log.Print("Sync messages...")
