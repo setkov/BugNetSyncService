@@ -12,6 +12,6 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image 
-      run: |
-        docker build -t BugNetSyncService --pull .
-        #docker run --rm golang-scratch-test
+      run:
+        docker build -t BugNetSyncService --pull
+
