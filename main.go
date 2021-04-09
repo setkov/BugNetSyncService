@@ -28,7 +28,7 @@ func main() {
 	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsАuthorizationToken)
 	tfsService := TfsService.NewTfsService(tfsProvider)
 
-	syncService := SyncService.NewSyncService(bugNetService, tfsService)
+	syncService := SyncService.NewSyncService(bugNetService, tfsService, config.IdleMode)
 	syncService.Start()
 
 	fmt.Scanln()

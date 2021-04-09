@@ -13,15 +13,17 @@ import (
 type SyncService struct {
 	DataService *BugNetService.DataService
 	TfsService  *TfsService.TfsService
+	idleMode    bool
 	stop        chan bool
 }
 
 // New sync service
-func NewSyncService(b *BugNetService.DataService, t *TfsService.TfsService) *SyncService {
+func NewSyncService(b *BugNetService.DataService, t *TfsService.TfsService, idleMode bool) *SyncService {
 	return &SyncService{
 		DataService: b,
 		TfsService:  t,
 		stop:        make(chan bool),
+		idleMode:    idleMode,
 	}
 }
 
@@ -84,11 +86,15 @@ func (s *SyncService) syncMessage() error {
 		if (tfsWorkItem.Fields.WorkItemType == "Issue" || tfsWorkItem.Fields.WorkItemType == "Requirement" || tfsWorkItem.Fields.WorkItemType == "Bug") &&
 			(tfsWorkItem.Fields.State == "Active" || tfsWorkItem.Fields.State == "Proposed" || tfsWorkItem.Fields.State == "Resolved") {
 			log.Print("AddWorkItemComment")
-			workItem, err := s.TfsService.AddWorkItemComment(tfsWorkItem.Id, comment)
-			if err != nil {
-				return err
+			if s.idleMode {
+				log.Print("IdleMode ON. Fake add comment to work item ", tfsWorkItem.Id)
 			} else {
-				log.Printf("Comment add to work item %v", workItem.Id)
+				workItem, err := s.TfsService.AddWorkItemComment(tfsWorkItem.Id, comment)
+				if err != nil {
+					return err
+				} else {
+					log.Print("Comment add to work item ", workItem.Id)
+				}
 			}
 		}
 	}
@@ -100,12 +106,15 @@ func (s *SyncService) syncMessage() error {
 		Time:  time.Now().In(loc),
 		Valid: true,
 	}
-	err = s.DataService.PushMessageDateSync(message)
-	if err != nil {
-		return err
+	if s.idleMode {
+		log.Print("IdleMode ON. Fake push message date sync ", message.DateSync.Time)
 	} else {
-		log.Print("DateSync: ", message.DateSync)
+		err = s.DataService.PushMessageDateSync(message)
+		if err != nil {
+			return err
+		} else {
+			log.Print("DateSync: ", message.DateSync.Time)
+		}
 	}
-
 	return nil
 }

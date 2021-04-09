@@ -2,21 +2,25 @@ package ConfigService
 
 import (
 	"encoding/json"
+	"log"
 	"os"
+	"strconv"
 )
 
 type ConfigService struct {
 	BugNetConnectionString string
 	TfsBaseUri             string
 	TfsАuthorizationToken  string
+	IdleMode               bool
 }
 
 // New config service
 func NewConfigService() *ConfigService {
 	var config ConfigService
 	if err := config.loadJson(); err != nil {
-		config.loadEnvironment()
+		log.Print("Error loadin configuration from file: ", err.Error())
 	}
+	config.loadEnvironment()
 	return &config
 }
 
@@ -45,5 +49,8 @@ func (c *ConfigService) loadEnvironment() {
 	}
 	if tfsАuthorizationToken, exists := os.LookupEnv("TFS_АUTHORIZATION_TOKEN"); exists {
 		c.TfsАuthorizationToken = tfsАuthorizationToken
+	}
+	if idleMode, exists := os.LookupEnv("IDLE_MODE"); exists {
+		c.IdleMode, _ = strconv.ParseBool(idleMode)
 	}
 }
