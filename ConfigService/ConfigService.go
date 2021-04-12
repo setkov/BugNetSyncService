@@ -26,7 +26,7 @@ func NewConfigService() *ConfigService {
 
 // Load configuration from json file
 func (c *ConfigService) loadJson() error {
-	file, err := os.Open("Config.json")
+	file, err := os.Open("config.json")
 	if err != nil {
 		return err
 	}
