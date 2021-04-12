@@ -1,5 +1,5 @@
-# BugNetSyncService
+## BugNetSyncService
+BugNetSyncService is a microservice for sync message from BugNet HelpDesk system to TFS.
 
-microservice for sync message from BugNet HelpDesk system to TFS
-
-[documentation](https://github.com/setkov/BugNetSyncService/wiki/BugNetSyncService-wiki)
+###### Sync sequence diagram:
+![Sync sequence diagram](https://github.com/setkov/BugNetSyncService/blob/master/SequenceDiagram.png)
