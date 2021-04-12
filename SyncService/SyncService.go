@@ -41,6 +41,9 @@ func (s *SyncService) Start() {
 					log.Print("Error: ", err.Error())
 					break
 				}
+				if s.idleMode {
+					break
+				}
 			}
 			log.Print("complited.")
 
