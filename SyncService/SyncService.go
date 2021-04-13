@@ -3,7 +3,6 @@ package SyncService
 import (
 	"BugNetSyncService/BugNetService"
 	"BugNetSyncService/TfsService"
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
@@ -103,20 +102,14 @@ func (s *SyncService) syncMessage() error {
 	}
 
 	log.Print("PushMessageDateSync")
-	_, offset := time.Now().Zone()
-	loc := time.FixedZone("UTC", offset)
-	message.DateSync = sql.NullTime{
-		Time:  time.Now().In(loc),
-		Valid: true,
-	}
 	if s.idleMode {
-		log.Print("IdleMode ON. Fake push message date sync ", message.DateSync.Time)
+		log.Print("IdleMode ON. Fake push message date sync ")
 	} else {
 		err = s.DataService.PushMessageDateSync(message)
 		if err != nil {
 			return err
 		} else {
-			log.Print("DateSync: ", message.DateSync.Time)
+			log.Print("Accepted")
 		}
 	}
 	return nil

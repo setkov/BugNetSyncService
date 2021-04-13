@@ -63,7 +63,7 @@ func (s *DataService) PullMessage() (*Message, error) {
 
 // Push message date sync
 func (s *DataService) PushMessageDateSync(mes *Message) error {
-	_, err := s.Db.Exec("update dbo.Iserv_MessageQueue set DateSync = @DateSync where link = @link", sql.Named("DateSync", mes.DateSync), sql.Named("link", mes.Link))
+	_, err := s.Db.Exec("update dbo.Iserv_MessageQueue set DateSync = GETDATE() where link = @link", sql.Named("link", mes.Link))
 	if err != nil {
 		return err
 	}
