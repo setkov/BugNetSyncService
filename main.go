@@ -5,8 +5,10 @@ import (
 	"BugNetSyncService/ConfigService"
 	"BugNetSyncService/SyncService"
 	"BugNetSyncService/TfsService"
-	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -31,7 +33,9 @@ func main() {
 	syncService := SyncService.NewSyncService(bugNetService, tfsService, config.IdleMode)
 	syncService.Start()
 
-	fmt.Scanln()
+	exitSignal := make(chan os.Signal, 1)
+	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+	<-exitSignal
 	syncService.Stop()
 	// wait sync service stoped
 	time.Sleep(1 * time.Second)
