@@ -11,3 +11,4 @@ COPY --from=app-builder /go/bin/BugNetSyncService /BugNetSyncService
 # the tls certificates:
 # NB: this pulls directly from the upstream image, which already has ca-certificates:
 COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+ENTRYPOINT ["/BugNetSyncService"]
