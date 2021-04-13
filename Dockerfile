@@ -2,12 +2,21 @@ FROM golang:alpine as app-builder
 WORKDIR /go/src/app
 COPY . .
 # Static build required so that we can safely copy the binary over.
-# `-tags timetzdata` embeds zone info from the "time/tzdata" package.
-RUN CGO_ENABLED=0 go install -ldflags '-extldflags "-static"' -tags timetzdata
+RUN CGO_ENABLED=0 go install -ldflags '-extldflags "-static"'
+
+FROM alpine:latest as alpine-with-tz
+RUN apk --no-cache add tzdata zip
+WORKDIR /usr/share/zoneinfo
+# -0 means no compression.  Needed because go's
+# tz loader doesn't handle compressed data.
+RUN zip -q -r -0 /zoneinfo.zip .
 
 FROM scratch
 # the test program:
 COPY --from=app-builder /go/bin/BugNetSyncService /BugNetSyncService
+# the timezone data:
+ENV ZONEINFO /zoneinfo.zip
+COPY --from=alpine-with-tz /zoneinfo.zip /
 # the tls certificates:
 # NB: this pulls directly from the upstream image, which already has ca-certificates:
 COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
