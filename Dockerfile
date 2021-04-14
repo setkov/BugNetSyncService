@@ -1,14 +1,14 @@
-FROM golang:alpine as app-builder
+FROM golang:alpine as builder
+RUN apk update && apk add ca-certificates && apk add tzdata
 WORKDIR /go/src/app
-COPY . .
+ADD . .
 # Static build required so that we can safely copy the binary over.
-# `-tags timetzdata` embeds zone info from the "time/tzdata" package.
-RUN CGO_ENABLED=0 go install -ldflags '-extldflags "-static"' -tags timetzdata
+RUN CGO_ENABLED=0 go install -ldflags '-extldflags "-static"'
 
 FROM scratch
-# the program:
-COPY --from=app-builder /go/bin/BugNetSyncService /BugNetSyncService
-# the tls certificates:
-# NB: this pulls directly from the upstream image, which already has ca-certificates:
-COPY --from=alpine:latest /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /go/bin/BugNetSyncService /BugNetSyncService
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+
+ENV TZ Europe/Moscow
 ENTRYPOINT ["/BugNetSyncService"]
