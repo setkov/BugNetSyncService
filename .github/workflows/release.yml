@@ -16,3 +16,4 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: setkov/bug-net-sync-service
           tag_with_ref: true
+          tags: latest
