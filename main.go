@@ -17,14 +17,14 @@ func main() {
 
 	log.Print("Load configuration.")
 	config, err := Common.NewConfig()
-	if err !=nil {
+	if err != nil {
 		log.Print(err)
-	} 
+	}
 
 	log.Print("BugNet data service open...")
 	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString)
 	if err := bugNetService.Open(); err != nil {
-		log.Fatal("Error: ", err.Error())
+		log.Print(err)
 	} else {
 		log.Print("conected.")
 	}
