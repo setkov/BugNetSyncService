@@ -35,9 +35,8 @@ func (s *SyncService) Start() {
 		for {
 			log.Print("Sync messages...")
 			for {
-				err := s.syncMessage()
-				if err != nil {
-					log.Print("Error: ", err.Error())
+				if err := s.syncMessage(); err != nil {
+					log.Print(err)
 					break
 				}
 				if s.idleMode {

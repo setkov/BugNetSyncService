@@ -1,5 +1,9 @@
 package TfsService
 
+import (
+	"BugNetSyncService/Common"
+)
+
 type TfsProvider interface {
 	GetRelations(ids TfsIds, linkType string) (TfsRelations, error)
 	GetWorkItems(ids TfsIds, fields []string) (TfsWorkItems, error)
@@ -23,21 +27,21 @@ func (s *TfsService) GetWorkItemsRelated(ids TfsIds, fields []string) (TfsWorkIt
 	// Get related relations
 	relations, err := s.Provider.GetRelations(ids, "System.LinkTypes.Related")
 	if err != nil {
-		return workItems, err
+		return workItems, Common.NewError("Get related. " + err.Error())
 	}
 	ids.AddTargets(relations)
 
 	// Get child relations
 	relations, err = s.Provider.GetRelations(ids, "System.LinkTypes.Hierarchy-Forward")
 	if err != nil {
-		return workItems, err
+		return workItems, Common.NewError("Get child. " + err.Error())
 	}
 	ids.AddTargets(relations)
 
 	// Get work items
 	workItems, err = s.Provider.GetWorkItems(ids, fields)
 	if err != nil {
-		return workItems, err
+		return workItems, Common.NewError("Get work items related. " + err.Error())
 	}
 
 	return workItems, nil
@@ -56,7 +60,7 @@ func (s *TfsService) AddWorkItemComment(id int, comment string) (TfsWorkItem, er
 
 	workItem, err := s.Provider.UpdateWorkItem(id, patchDocument)
 	if err != nil {
-		return workItem, err
+		return workItem, Common.NewError("Add work item comment. " + err.Error())
 	}
 	return workItem, nil
 }
