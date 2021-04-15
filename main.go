@@ -2,7 +2,7 @@ package main
 
 import (
 	"BugNetSyncService/BugNetService"
-	"BugNetSyncService/ConfigService"
+	"BugNetSyncService/Common"
 	"BugNetSyncService/SyncService"
 	"BugNetSyncService/TfsService"
 	"log"
@@ -15,9 +15,11 @@ import (
 func main() {
 	log.Print("BugNetSyncService started.")
 
-	log.Print("Load configuration...")
-	config := ConfigService.NewConfigService()
-	log.Print("loaded.")
+	log.Print("Load configuration.")
+	config, err := Common.NewConfig()
+	if err !=nil {
+		log.Print(err)
+	} 
 
 	log.Print("BugNet data service open...")
 	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString)

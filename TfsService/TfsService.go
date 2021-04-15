@@ -23,21 +23,21 @@ func (s *TfsService) GetWorkItemsRelated(ids TfsIds, fields []string) (TfsWorkIt
 	// Get related relations
 	relations, err := s.Provider.GetRelations(ids, "System.LinkTypes.Related")
 	if err != nil {
-		return workItems, nil
+		return workItems, err
 	}
 	ids.AddTargets(relations)
 
 	// Get child relations
 	relations, err = s.Provider.GetRelations(ids, "System.LinkTypes.Hierarchy-Forward")
 	if err != nil {
-		return workItems, nil
+		return workItems, err
 	}
 	ids.AddTargets(relations)
 
 	// Get work items
 	workItems, err = s.Provider.GetWorkItems(ids, fields)
 	if err != nil {
-		return workItems, nil
+		return workItems, err
 	}
 
 	return workItems, nil

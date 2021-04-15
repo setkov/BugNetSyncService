@@ -1,46 +1,50 @@
-package ConfigService
+package Common
 
 import (
 	"encoding/json"
-	"log"
+	"errors"
 	"os"
 	"strconv"
 )
 
-type ConfigService struct {
+const configFileName string = "config.json"
+
+type Config struct {
 	BugNetConnectionString string
 	TfsBaseUri             string
 	TfsАuthorizationToken  string
 	IdleMode               bool
 }
 
-// New config service
-func NewConfigService() *ConfigService {
-	var config ConfigService
-	if err := config.loadJson(); err != nil {
-		log.Print("Error loadin configuration from file: ", err.Error())
-	}
+// New config
+func NewConfig() (*Config, error) {
+	var config Config
+	err := config.loadJsonFile()
 	config.loadEnvironment()
-	return &config
+	return &config, err
 }
 
 // Load configuration from json file
-func (c *ConfigService) loadJson() error {
-	file, err := os.Open("config.json")
-	if err != nil {
-		return err
-	}
-	defer file.Close()
+func (c *Config) loadJsonFile() error {
+	if _, err := os.Stat(configFileName); errors.Is(err, os.ErrNotExist) {
+		return NewWarning("Configuration file not found.")
+	} else {
+		file, err := os.Open(configFileName)
+		if err != nil {
+			return NewError("Open config file. " + err.Error())
+		}
+		defer file.Close()
 
-	decoder := json.NewDecoder(file)
-	if err := decoder.Decode(&c); err != nil {
-		return err
+		decoder := json.NewDecoder(file)
+		if err := decoder.Decode(&c); err != nil {
+			return NewError("Parse config file. " + err.Error())
+		}
 	}
 	return nil
 }
 
 // Load configuration from environment variables
-func (c *ConfigService) loadEnvironment() {
+func (c *Config) loadEnvironment() {
 	if bugNetConnectionString, exists := os.LookupEnv("BUG_NET_CONNECTION_STRING"); exists {
 		c.BugNetConnectionString = bugNetConnectionString
 	}
