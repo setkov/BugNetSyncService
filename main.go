@@ -5,6 +5,7 @@ import (
 	"BugNetSyncService/Common"
 	"BugNetSyncService/SyncService"
 	"BugNetSyncService/TfsService"
+	"BugNetSyncService/WebUI"
 	"log"
 	"os"
 	"os/signal"
@@ -29,6 +30,9 @@ func main() {
 		log.Print("conected.")
 	}
 
+	webUI := WebUI.NewWebUI(bugNetService)
+	webUI.Start()
+
 	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsАuthorizationToken)
 	tfsService := TfsService.NewTfsService(tfsProvider)
 
@@ -38,8 +42,10 @@ func main() {
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
+
+	webUI.Stop()
 	syncService.Stop()
-	// wait sync service stoped
+	// wait services stoped
 	time.Sleep(1 * time.Second)
 
 	log.Print("BugNetSyncService stoped.")
