@@ -25,3 +25,6 @@ IDLE_MODE - run service in idle mode (default value is false)
 ###### Run service in docker
 - get last docker image from [DockerHub](https://hub.docker.com/r/setkov/bug-net-sync-service/tags?page=1&ordering=last_updated)
 - run the image using environment variables
+
+###### View Message Queue
+open in web browser link http://localhost:8080/
