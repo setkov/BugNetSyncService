@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+        <title>BugNetSyncService - MessageQueue</title>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <p>
+                <div class="small">Sync Message Queue Top</div>
+            </p>
+
+            <table class="table table-sm table-hover small w-auto">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Date (Desc)</th>
+                        <th>HelpDesk Issue</th>
+                        <th>TFS WorkItem</th>
+                        <th>User</th>
+                        <th>Operation</th>
+                        <th>Message</th>
+                        <th>Date Sync</th>
+                    </tr>
+                </thead>
+                {{range .Messages}}
+                    <tr>
+                        <td>{{datetime .Date}}</td>
+                        <td><a class="text-decoration-none" target="_blank" href="http://support.it-serv.ru/bugnet/Issues/IssueDetail.aspx?id={{.IssueId}}" title="View">{{.IssueId}}</a></td>
+                        <td><a class="text-decoration-none" target="_blank" href="http://tfs2017.compulink.local:8080/tfs/DefaultCollection/IServ/_workitems?id={{.TfsId}}" title="View">{{.TfsId}}</a></td>
+                        <td>{{.User.String}}</td>
+                        <td>{{.Operation.String}}</td>
+                        <td>
+                            <a data-toggle="modal" href="#Message_{{.Link}}" title="Message">{{trim .Message.String 50}}</a>
+                            <div class="modal" id="Message_{{.Link}}" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <b>{{datetime .Date}} {{.User.String}} {{.Operation.String}}:</b>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {{html .Message.String}}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{datetime .DateSync.Time}}</td>
+                    </tr>
+                {{end}}
+            </table>
+
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+        </div>
+    </body>
+</html>

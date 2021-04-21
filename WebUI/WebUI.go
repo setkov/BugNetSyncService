@@ -3,6 +3,7 @@ package WebUI
 import (
 	"BugNetSyncService/BugNetService"
 	"context"
+	"html/template"
 	"log"
 	"net/http"
 )
@@ -10,7 +11,8 @@ import (
 //	WebUI
 type WebUI struct {
 	dataService *BugNetService.DataService
-	webServer   *http.Server
+	server      *http.Server
+	funcMap     template.FuncMap
 }
 
 // New WebUI
@@ -25,19 +27,26 @@ func (w *WebUI) Start() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", w.MessageQueueController)
 
-	w.webServer = &http.Server{
+	w.server = &http.Server{
 		Addr:    ":8080",
 		Handler: mux,
 	}
 
+	w.funcMap = template.FuncMap{
+		"html":     TextToHtml,
+		"text":     HtmlToText,
+		"trim":     TrimText,
+		"datetime": DateTime,
+	}
+
 	log.Print("WebUI started.")
 	go func() {
-		w.webServer.ListenAndServe()
+		w.server.ListenAndServe()
 	}()
 }
 
 // Stop WebUI
 func (w *WebUI) Stop() {
 	log.Print("WebUI shutdown.")
-	w.webServer.Shutdown(context.Background())
+	w.server.Shutdown(context.Background())
 }

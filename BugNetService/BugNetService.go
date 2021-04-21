@@ -40,10 +40,10 @@ func (s *DataService) Close() error {
 }
 
 // Get message queue
-func (s *DataService) GetMessageQueue() (*MessageQueue, error) {
+func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 	var que = MessageQueue{}
 
-	rows, err := s.Db.Query("select top 10 * from dbo.Iserv_MessageQueue order by link desc")
+	rows, err := s.Db.Query("select top (@top) * from dbo.Iserv_MessageQueue order by link desc", sql.Named("top", top))
 	if err != nil {
 		return &que, Common.NewError("Get message queue. " + err.Error())
 	}
