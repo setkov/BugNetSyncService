@@ -1,1 +1,3 @@
 config.json
+BugNetService/SqlCode/dbo.Iserv_MessageQueue_toNew.sql
+BugNetService/SqlCode/dbo.Iserv_MessageQueue_toOld.sql

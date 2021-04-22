@@ -43,7 +43,7 @@ func (s *DataService) Close() error {
 func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 	var que = MessageQueue{}
 
-	rows, err := s.Db.Query("select top (@top) * from dbo.Iserv_MessageQueue order by link desc", sql.Named("top", top))
+	rows, err := s.Db.Query("select top (@top) Link,Date,IssueId,TfsId,User,Operation,Message,DateSync from dbo.Iserv_MessageQueue order by link desc", sql.Named("top", top))
 	if err != nil {
 		return &que, Common.NewError("Get message queue. " + err.Error())
 	}
@@ -62,7 +62,7 @@ func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 // Pull message for sync
 func (s *DataService) PullMessage() (*Message, error) {
 	var mes Message
-	tsql := "select top 1 * from dbo.Iserv_MessageQueue where DateSync is null order by link"
+	tsql := "select top 1 Link,Date,IssueId,TfsId,User,Operation,Message,DateSync from dbo.Iserv_MessageQueue where DateSync is null order by link"
 	if err := s.Db.QueryRow(tsql).Scan(&mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync); err != nil {
 		if err == sql.ErrNoRows {
 			return &mes, Common.NewWarning("Pull message. " + err.Error())
