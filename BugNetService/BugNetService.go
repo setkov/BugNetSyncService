@@ -43,7 +43,7 @@ func (s *DataService) Close() error {
 func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 	var que = MessageQueue{}
 
-	rows, err := s.Db.Query("select top (@top) [Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync] from dbo.Iserv_MessageQueue order by link desc", sql.Named("top", top))
+	rows, err := s.Db.Query("select top (@top) [Id],[Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue order by link desc", sql.Named("top", top))
 	if err != nil {
 		return &que, Common.NewError("Get message queue. " + err.Error())
 	}
@@ -51,7 +51,7 @@ func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 
 	for rows.Next() {
 		var mes Message
-		if err := rows.Scan(&mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync); err != nil {
+		if err := rows.Scan(&mes.Id, &mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
 			return &que, Common.NewError("Get message queue row. " + err.Error())
 		}
 		que.Messages = append(que.Messages, &mes)
@@ -62,8 +62,8 @@ func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 // Pull message for sync
 func (s *DataService) PullMessage() (*Message, error) {
 	var mes Message
-	tsql := "select top 1 [Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync] from dbo.Iserv_MessageQueue where DateSync is null order by link"
-	if err := s.Db.QueryRow(tsql).Scan(&mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync); err != nil {
+	tsql := "select top 1 [Id],[Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue where DateSync is null order by link"
+	if err := s.Db.QueryRow(tsql).Scan(&mes.Id, &mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
 		if err == sql.ErrNoRows {
 			return &mes, Common.NewWarning("Pull message. " + err.Error())
 		} else {
@@ -75,7 +75,7 @@ func (s *DataService) PullMessage() (*Message, error) {
 
 // Push message date sync
 func (s *DataService) PushMessageDateSync(mes *Message) error {
-	_, err := s.Db.Exec("update dbo.Iserv_MessageQueue set DateSync = GETDATE() where link = @link", sql.Named("link", mes.Link))
+	_, err := s.Db.Exec("update dbo.Iserv_MessageQueue set DateSync = GETDATE() where Id = @Id", sql.Named("Id", mes.Id))
 	if err != nil {
 		return Common.NewError("Push message date sync. " + err.Error())
 	}

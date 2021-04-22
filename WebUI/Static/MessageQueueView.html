@@ -27,13 +27,13 @@
                 {{range .Messages}}
                     <tr>
                         <td>{{datetime .Date}}</td>
-                        <td><a class="text-decoration-none" target="_blank" href="http://support.it-serv.ru/bugnet/Issues/IssueDetail.aspx?id={{.IssueId}}" title="View">{{.IssueId}}</a></td>
-                        <td><a class="text-decoration-none" target="_blank" href="http://tfs2017.compulink.local:8080/tfs/DefaultCollection/IServ/_workitems?id={{.TfsId}}" title="View">{{.TfsId}}</a></td>
+                        <td><a class="text-decoration-none" target="_blank" href="{{.IssueUrl.String}}" title="View">{{.IssueId}}</a></td>
+                        <td><a class="text-decoration-none" target="_blank" href="{{.TfsUrl.String}}" title="View">{{.TfsId}}</a></td>
                         <td>{{.User.String}}</td>
                         <td>{{.Operation.String}}</td>
                         <td>
-                            <a data-toggle="modal" href="#Message_{{.Link}}" title="Message">{{trim .Message.String 50}}</a>
-                            <div class="modal" id="Message_{{.Link}}" tabindex="-1" role="dialog" aria-hidden="true">
+                            <a data-toggle="modal" href="#Message_{{.Id}}" title="Message">{{trim .Message.String 50}}</a>
+                            <div class="modal" id="Message_{{.Id}}" tabindex="-1" role="dialog" aria-hidden="true">
                                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">

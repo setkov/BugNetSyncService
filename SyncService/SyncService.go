@@ -68,7 +68,7 @@ func (s *SyncService) syncMessage() error {
 	if err != nil {
 		return err
 	} else {
-		log.Print("Message: ", message.Link, message.Date, message.IssueId, message.TfsId, message.User, message.Operation)
+		log.Print("Message: ", message)
 	}
 	comment := fmt.Sprintf("<p><i>%v %v %v:</i></p>%v", message.Date.Format("2006-01-02 15:04"), message.User.String, message.Operation.String, message.Message.String)
 	log.Print("Comment: ", comment)
