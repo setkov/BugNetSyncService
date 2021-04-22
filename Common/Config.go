@@ -10,10 +10,12 @@ import (
 const configFileName string = "config.json"
 
 type Config struct {
-	BugNetConnectionString string
-	TfsBaseUri             string
-	TfsАuthorizationToken  string
-	IdleMode               bool
+	BugNetConnectionString   string
+	BugNetDomainUrl          string
+	BugNetАuthorizationToken string
+	TfsBaseUri               string
+	TfsАuthorizationToken    string
+	IdleMode                 bool
 }
 
 // New config
@@ -47,6 +49,12 @@ func (c *Config) loadJsonFile() error {
 func (c *Config) loadEnvironment() {
 	if bugNetConnectionString, exists := os.LookupEnv("BUG_NET_CONNECTION_STRING"); exists {
 		c.BugNetConnectionString = bugNetConnectionString
+	}
+	if bugNetDomainUrl, exists := os.LookupEnv("BUG_NET_DOMAIN_URL"); exists {
+		c.BugNetDomainUrl = bugNetDomainUrl
+	}
+	if bugNetАuthorizationToken, exists := os.LookupEnv("BUG_NET_АUTHORIZATION_TOKEN"); exists {
+		c.BugNetАuthorizationToken = bugNetАuthorizationToken
 	}
 	if tfsBaseUri, exists := os.LookupEnv("TFS_BASE_URI"); exists {
 		c.TfsBaseUri = tfsBaseUri

@@ -23,7 +23,7 @@ func main() {
 	}
 
 	log.Print("BugNet data service open...")
-	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString)
+	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString, config.BugNetDomainUrl, config.BugNetАuthorizationToken)
 	if err := bugNetService.Open(); err != nil {
 		log.Print(err)
 	} else {
@@ -38,6 +38,16 @@ func main() {
 
 	syncService := SyncService.NewSyncService(bugNetService, tfsService, config.IdleMode)
 	syncService.Start()
+
+	// test get file
+	// mes, err := bugNetService.GetMessage(1209)
+	// if err != nil {
+	// 	log.Print(err)
+	// }
+	// log.Print(mes)
+	// if err := bugNetService.LoadAttachment(mes); err != nil {
+	// 	log.Print(err)
+	// }
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)

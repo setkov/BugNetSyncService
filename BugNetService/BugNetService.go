@@ -3,19 +3,28 @@ package BugNetService
 import (
 	"BugNetSyncService/Common"
 	"database/sql"
+	"io"
+	"net/http"
+	"os"
 
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
 // BugNet data service
 type DataService struct {
-	ConnectionString string
-	Db               *sql.DB
+	ConnectionString   string
+	DomainUrl          string
+	АuthorizationToken string
+	Db                 *sql.DB
 }
 
 // New data service
-func NewDataService(connectionString string) *DataService {
-	return &DataService{ConnectionString: connectionString}
+func NewDataService(connectionString string, domainUrl string, authorizationToken string) *DataService {
+	return &DataService{
+		ConnectionString:   connectionString,
+		DomainUrl:          domainUrl,
+		АuthorizationToken: authorizationToken,
+	}
 }
 
 // Open data connection
@@ -59,6 +68,20 @@ func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 	return &que, nil
 }
 
+// Get message by id
+func (s *DataService) GetMessage(id int) (*Message, error) {
+	var mes Message
+	tsql := "select [Id],[Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue where Id = @Id"
+	if err := s.Db.QueryRow(tsql, sql.Named("Id", id)).Scan(&mes.Id, &mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
+		if err == sql.ErrNoRows {
+			return &mes, Common.NewWarning("Pull message. " + err.Error())
+		} else {
+			return &mes, Common.NewError("Pull message. " + err.Error())
+		}
+	}
+	return &mes, nil
+}
+
 // Pull message for sync
 func (s *DataService) PullMessage() (*Message, error) {
 	var mes Message
@@ -78,6 +101,40 @@ func (s *DataService) PushMessageDateSync(mes *Message) error {
 	_, err := s.Db.Exec("update dbo.Iserv_MessageQueue set DateSync = GETDATE() where Id = @Id", sql.Named("Id", mes.Id))
 	if err != nil {
 		return Common.NewError("Push message date sync. " + err.Error())
+	}
+	return nil
+}
+
+// Load attachment
+func (s *DataService) LoadAttachment(mes *Message) error {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", mes.FileUrl.String, nil)
+	if err != nil {
+		return Common.NewError("New request. " + err.Error())
+	}
+
+	req.AddCookie(&http.Cookie{
+		Name:     "BugNET",
+		Value:    s.АuthorizationToken,
+		Path:     "/",
+		Domain:   s.DomainUrl,
+		HttpOnly: true,
+	})
+	resp, err := client.Do(req)
+	if err != nil {
+		return Common.NewError("Load attachment. " + err.Error())
+	}
+	defer resp.Body.Close()
+
+	out, err := os.Create(mes.FileName.String)
+	if err != nil {
+		return Common.NewError("Create file. " + err.Error())
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return Common.NewError("Wrire file. " + err.Error())
 	}
 	return nil
 }
