@@ -6,7 +6,7 @@ GO
 -- =============================================
 -- Author:		S-Setkov
 -- Create date: 12.01.2021
--- Alter date:	12.01.2021
+-- Alter date:	22.04.2021
 -- Description:	Iserv sunc attachment
 -- =============================================
 CREATE OR ALTER TRIGGER dbo.TRI_BugNet_IssueAttachments ON dbo.BugNet_IssueAttachments
@@ -15,14 +15,17 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 
-	INSERT	dbo.Iserv_MessageQueue(IssueId, TfsId, [User], [Operation], [Message])
+	INSERT	dbo.Iserv_MessageQueue(IssueId, TfsId, [User], [Operation], [Message], [AttachmentId], [FileName], [ContentType])
 	SELECT	i.IssueId, 
 			i.TfsId, 
 			ISNULL(up.DisplayName, u.UserName) AS [User],
 			'add attachment' AS [Operation],
 			'<a href="http://support.it-serv.ru/bugnet/Issues/UserControls/DownloadAttachment.axd?id=' + CAST(a.IssueAttachmentId AS VARCHAR(10)) + '">' 
 			+ ISNULL(STUFF(a.FileName, PATINDEX('%[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]%', a.FileName), 37, ''), a.FileName)
-			+ '</a>' AS [Message]
+			+ '</a>' AS [Message],
+			a.IssueAttachmentId AS [AttachmentId],
+			ISNULL(STUFF(a.FileName, PATINDEX('%[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]-[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]%', a.FileName), 37, ''), a.FileName) AS [FileName],
+			a.ContentType AS [ContentType]
 	FROM INSERTED AS INS
 		INNER JOIN dbo.BugNet_IssueAttachments a
 			ON a.IssueAttachmentId = INS.IssueAttachmentId
