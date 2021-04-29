@@ -39,15 +39,26 @@ func main() {
 	syncService := SyncService.NewSyncService(bugNetService, tfsService, config.IdleMode)
 	syncService.Start()
 
-	// test get file
-	// mes, err := bugNetService.GetMessage(1209)
-	// if err != nil {
-	// 	log.Print(err)
-	// }
-	// log.Print(mes)
-	// if err := bugNetService.LoadAttachment(mes); err != nil {
-	// 	log.Print(err)
-	// }
+	// test Attach file
+	time.Sleep(2 * time.Second)
+	log.Print("test Attach file")
+	mes, err := bugNetService.GetMessage(1301)
+	if err != nil {
+		log.Print(err)
+	}
+	log.Print(mes)
+	bytes, err := bugNetService.LoadAttachment(mes)
+	if err != nil {
+		log.Print(err)
+	}
+	//log.Print(bytes)
+	// workItem, err := tfsService.AddWorkItemAttachment(mes.TfsId, mes.FileName.String, bytes)
+	workItem, err := tfsService.AddWorkItemAttachment(290704, mes.FileName.String, bytes)
+	if err != nil {
+		log.Print(err)
+	} else {
+		log.Print("Loaded to work item ", workItem.Id)
+	}
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)

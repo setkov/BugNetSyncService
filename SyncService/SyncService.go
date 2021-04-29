@@ -88,14 +88,33 @@ func (s *SyncService) syncMessage() error {
 			(tfsWorkItem.Fields.State == "Active" || tfsWorkItem.Fields.State == "Proposed" || tfsWorkItem.Fields.State == "Resolved") {
 			log.Print("AddWorkItemComment")
 			if s.idleMode {
-				log.Print("IdleMode ON. Fake add comment to work item ", tfsWorkItem.Id)
+				log.Print("IdleMode ON. Fake added to work item ", tfsWorkItem.Id)
 			} else {
 				workItem, err := s.TfsService.AddWorkItemComment(tfsWorkItem.Id, comment)
 				if err != nil {
 					return err
 				} else {
-					log.Print("Comment add to work item ", workItem.Id)
+					log.Print("Added to work item ", workItem.Id)
 				}
+			}
+		}
+	}
+
+	if message.Operation.String == "add attachment" {
+		log.Print("AddWorkItemAttachment")
+		if s.idleMode {
+			log.Print("IdleMode ON. Fake added to work item ", message.TfsId)
+		} else {
+			log.Print("LoadAttachment")
+			bytes, err := s.DataService.LoadAttachment(message)
+			if err != nil {
+				return err
+			}
+			workItem, err := s.TfsService.AddWorkItemAttachment(message.TfsId, message.FileName.String, bytes)
+			if err != nil {
+				return err
+			} else {
+				log.Print("Loaded to work item ", workItem.Id)
 			}
 		}
 	}

@@ -3,7 +3,7 @@ package TfsService
 type TfsPatchOperation struct {
 	Op    string `json:"op"`
 	Path  string `json:"path"`
-	Value string `json:"value"`
+	Value interface{} `json:"value"`
 }
 
 type TfsPatchDocument struct {

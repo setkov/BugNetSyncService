@@ -3,9 +3,8 @@ package BugNetService
 import (
 	"BugNetSyncService/Common"
 	"database/sql"
-	"io"
+	"io/ioutil"
 	"net/http"
-	"os"
 
 	_ "github.com/denisenkom/go-mssqldb"
 )
@@ -106,11 +105,13 @@ func (s *DataService) PushMessageDateSync(mes *Message) error {
 }
 
 // Load attachment
-func (s *DataService) LoadAttachment(mes *Message) error {
+func (s *DataService) LoadAttachment(mes *Message) ([]byte, error) {
+	var bytes []byte
+
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", mes.FileUrl.String, nil)
 	if err != nil {
-		return Common.NewError("New request. " + err.Error())
+		return bytes, Common.NewError("New request. " + err.Error())
 	}
 
 	req.AddCookie(&http.Cookie{
@@ -122,19 +123,24 @@ func (s *DataService) LoadAttachment(mes *Message) error {
 	})
 	resp, err := client.Do(req)
 	if err != nil {
-		return Common.NewError("Load attachment. " + err.Error())
+		return bytes, Common.NewError("Do request. " + err.Error())
 	}
 	defer resp.Body.Close()
 
-	out, err := os.Create(mes.FileName.String)
+	bytes, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return Common.NewError("Create file. " + err.Error())
+		return bytes, Common.NewError("Read request. " + err.Error())
 	}
-	defer out.Close()
 
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return Common.NewError("Wrire file. " + err.Error())
-	}
-	return nil
+	// out, err := os.Create(mes.FileName.String)
+	// if err != nil {
+	// 	return Common.NewError("Create file. " + err.Error())
+	// }
+	// defer out.Close()
+
+	// _, err = io.Copy(out, resp.Body)
+	// if err != nil {
+	// 	return Common.NewError("Wrire file. " + err.Error())
+	// }
+	return bytes, nil
 }

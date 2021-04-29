@@ -6,8 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	//"log"
 	"net/http"
 )
+
+const apiVersion = "api-version=5.0"
 
 // Tfs provider
 type tfsProvider struct {
@@ -26,17 +29,12 @@ func NewTfsProvider(baseUri string, authorizationToken string) *tfsProvider {
 }
 
 // Do request
-func (p *tfsProvider) doRequest(method string, requestUrl string, body []byte) (string, error) {
-	req, err := http.NewRequest(method, fmt.Sprintf("%s%s?api-version=5.0", p.BaseUri, requestUrl), bytes.NewBuffer(body))
+func (p *tfsProvider) doRequest(method string, requestUrl string, contentType string, body []byte) (string, error) {
+	req, err := http.NewRequest(method, fmt.Sprintf("%s%s", p.BaseUri, requestUrl), bytes.NewBuffer(body))
 	if err != nil {
 		return "", Common.NewError("New request. " + err.Error())
 	}
 	req.SetBasicAuth(p.АuthorizationToken, p.АuthorizationToken)
-
-	contentType := "application/json"
-	if method == "PATCH" {
-		contentType += "-patch+json"
-	}
 	req.Header.Add("Content-Type", contentType)
 
 	resp, err := p.Client.Do(req)
@@ -50,7 +48,7 @@ func (p *tfsProvider) doRequest(method string, requestUrl string, body []byte) (
 		return "", Common.NewError("Read request. " + err.Error())
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusCreated {
 		var response map[string]interface{}
 		_ = json.Unmarshal(bytes, &response)
 		return "", Common.NewError(fmt.Sprintf("Request status %v. %v", resp.Status, response["message"]))
@@ -65,7 +63,8 @@ func (p *tfsProvider) queryWiql(query string) (string, error) {
 		return "", Common.NewError("Prepare for query wiql. " + err.Error())
 	}
 
-	res, err := p.doRequest("POST", "_apis/wit/wiql", body)
+	requestUrl := fmt.Sprintf("_apis/wit/wiql?%s", apiVersion)
+	res, err := p.doRequest("POST", requestUrl, "application/json", body)
 	if err != nil {
 		return "", Common.NewError("Query wiql. " + err.Error())
 	}
@@ -79,7 +78,8 @@ func (p *tfsProvider) getWorkItemsBatch(ids TfsIds, fields []string) (string, er
 		return "", Common.NewError("Prepare for get work items batch. " + err.Error())
 	}
 
-	res, err := p.doRequest("POST", "_apis/wit/workitemsbatch", body)
+	requestUrl := fmt.Sprintf("_apis/wit/workitemsbatch?%s", apiVersion)
+	res, err := p.doRequest("POST", requestUrl, "application/json", body)
 	if err != nil {
 		return "", Common.NewError("Get work items batch. " + err.Error())
 	}
@@ -128,7 +128,8 @@ func (p *tfsProvider) UpdateWorkItem(id int, patch TfsPatchDocument) (TfsWorkIte
 		return workItem, Common.NewError("Prepare for update work item. " + err.Error())
 	}
 
-	res, err := p.doRequest("PATCH", fmt.Sprintf("_apis/wit/workitems/%d", id), body)
+	requestUrl := fmt.Sprintf("_apis/wit/workitems/%d?%s", id, apiVersion)
+	res, err := p.doRequest("PATCH", requestUrl, "application/json-patch+json", body)
 	if err != nil {
 		return workItem, Common.NewError("Update work item. " + err.Error())
 	}
@@ -138,4 +139,27 @@ func (p *tfsProvider) UpdateWorkItem(id int, patch TfsPatchDocument) (TfsWorkIte
 		return workItem, Common.NewError("Parse work item. " + err.Error())
 	}
 	return workItem, nil
+}
+
+// Create attachment
+func (p *tfsProvider) CreateAttachment(fileName string, content []byte) (AttachmentReference, error) {
+	var attachmentReference AttachmentReference
+
+	// body, err := json.Marshal(content)
+	// if err != nil {
+	// 	return attachmentReference, Common.NewError("Prepare for create attachment. " + err.Error())
+	// }
+	//log.Print(body)
+
+	requestUrl := fmt.Sprintf("_apis/wit/attachments?fileName=%s&%s", fileName, apiVersion)
+	res, err := p.doRequest("POST", requestUrl, "application/octet-stream", content)
+	if err != nil {
+		return attachmentReference, Common.NewError("Create attachment. " + err.Error())
+	}
+
+	err = json.Unmarshal([]byte(res), &attachmentReference)
+	if err != nil {
+		return attachmentReference, Common.NewError("Parse attachment reference. " + err.Error())
+	}
+	return attachmentReference, nil
 }

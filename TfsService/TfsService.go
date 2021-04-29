@@ -8,6 +8,7 @@ type TfsProvider interface {
 	GetRelations(ids TfsIds, linkType string) (TfsRelations, error)
 	GetWorkItems(ids TfsIds, fields []string) (TfsWorkItems, error)
 	UpdateWorkItem(id int, patch TfsPatchDocument) (TfsWorkItem, error)
+	CreateAttachment(fileName string, content []byte) (AttachmentReference, error)
 }
 
 // Tfs sercvice
@@ -55,10 +56,44 @@ func (s *TfsService) AddWorkItemComment(id int, comment string) (TfsWorkItem, er
 		comment = comment[0 : 1048576-1]
 	}
 
-	operation := TfsPatchOperation{Op: "add", Path: "/fields/System.History", Value: comment}
+	operation := TfsPatchOperation{
+		Op:    "add",
+		Path:  "/fields/System.History",
+		Value: comment,
+	}
 	patchDocument := TfsPatchDocument{Operations: []TfsPatchOperation{operation}}
 
 	workItem, err := s.Provider.UpdateWorkItem(id, patchDocument)
+	if err != nil {
+		return workItem, Common.NewError("Add work item comment. " + err.Error())
+	}
+	return workItem, nil
+}
+
+// Add work item attachment
+func (s *TfsService) AddWorkItemAttachment(id int, fileName string, content []byte) (TfsWorkItem, error) {
+	var workItem TfsWorkItem
+
+	ref, err := s.Provider.CreateAttachment(fileName, content)
+	if err != nil {
+		return workItem, Common.NewError("Create attachment. " + err.Error())
+	}
+
+	atachmentValue := AttachmentValue{
+		Rel: "AttachedFile",
+		Url: ref.Url,
+		Attributes: AttachmentAttributes{
+			Comment: "Attached with BugNet Integration Tools",
+		},
+	}
+	operation := TfsPatchOperation{
+		Op:    "add",
+		Path:  "/relations/-",
+		Value: atachmentValue,
+	}
+	patchDocument := TfsPatchDocument{Operations: []TfsPatchOperation{operation}}
+
+	workItem, err = s.Provider.UpdateWorkItem(id, patchDocument)
 	if err != nil {
 		return workItem, Common.NewError("Add work item comment. " + err.Error())
 	}
