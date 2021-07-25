@@ -39,7 +39,7 @@ func main() {
 	syncService := SyncService.NewSyncService(bugNetService, tfsService, config.IdleMode)
 	syncService.Start()
 
-	// test Attach file
+/* 	// test Attach file
 	time.Sleep(2 * time.Second)
 	log.Print("test Attach file")
 	mes, err := bugNetService.GetMessage(1301)
@@ -58,7 +58,7 @@ func main() {
 		log.Print(err)
 	} else {
 		log.Print("Loaded to work item ", workItem.Id)
-	}
+	} */
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
