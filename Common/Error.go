@@ -3,8 +3,8 @@ package Common
 type errorCategory string
 
 const (
-	_error   errorCategory = "Error"
-	_warning errorCategory = "Warning"
+	Error   errorCategory = "Error"
+	Warning errorCategory = "Warning"
 )
 
 type ErrorWithCategory struct {
@@ -14,18 +14,22 @@ type ErrorWithCategory struct {
 
 func NewError(error string) *ErrorWithCategory {
 	return &ErrorWithCategory{
-		category: _error,
+		category: Error,
 		text:     error,
 	}
 }
 
 func NewWarning(error string) *ErrorWithCategory {
 	return &ErrorWithCategory{
-		category: _warning,
+		category: Warning,
 		text:     error,
 	}
 }
 
 func (e *ErrorWithCategory) Error() string {
 	return string(e.category) + ": " + e.text
+}
+
+func (e *ErrorWithCategory) Category() errorCategory {
+	return e.category
 }

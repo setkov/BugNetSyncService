@@ -2,6 +2,7 @@ package SyncService
 
 import (
 	"BugNetSyncService/BugNetService"
+	"BugNetSyncService/Common"
 	"BugNetSyncService/TfsService"
 	"fmt"
 	"log"
@@ -10,19 +11,21 @@ import (
 
 // Sync service
 type SyncService struct {
-	DataService *BugNetService.DataService
-	TfsService  *TfsService.TfsService
-	idleMode    bool
-	stop        chan bool
+	DataService    *BugNetService.DataService
+	TfsService     *TfsService.TfsService
+	MSTeamsService *Common.MSTeamsService
+	idleMode       bool
+	stop           chan bool
 }
 
 // New sync service
-func NewSyncService(b *BugNetService.DataService, t *TfsService.TfsService, idleMode bool) *SyncService {
+func NewSyncService(b *BugNetService.DataService, t *TfsService.TfsService, s *Common.MSTeamsService, idleMode bool) *SyncService {
 	return &SyncService{
-		DataService: b,
-		TfsService:  t,
-		stop:        make(chan bool),
-		idleMode:    idleMode,
+		DataService:    b,
+		TfsService:     t,
+		MSTeamsService: s,
+		idleMode:       idleMode,
+		stop:           make(chan bool),
 	}
 }
 
@@ -37,6 +40,12 @@ func (s *SyncService) Start() {
 			for {
 				if err := s.syncMessage(); err != nil {
 					log.Print(err)
+					errorWithCategory, ok := err.(*Common.ErrorWithCategory)
+					if ok {
+						if errorWithCategory.Category() == Common.Error {
+							s.MSTeamsService.SendMessage(errorWithCategory.Error())
+						}
+					}
 					break
 				}
 				if s.idleMode {

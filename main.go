@@ -23,7 +23,7 @@ func main() {
 	}
 
 	msTeamsServise := Common.NewMSTeamsService(config.MSTeamsWebhookUrl, "BugNetSyncService")
-	msTeamsServise.SendMessage("BugNetSyncService started.")
+	msTeamsServise.SendMessage("Service started.")
 
 	log.Print("BugNet data service open...")
 	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString, config.BugNetDomainUrl, config.BugNetАuthorizationToken)
@@ -39,7 +39,7 @@ func main() {
 	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsАuthorizationToken)
 	tfsService := TfsService.NewTfsService(tfsProvider)
 
-	syncService := SyncService.NewSyncService(bugNetService, tfsService, config.IdleMode)
+	syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, config.IdleMode)
 	syncService.Start()
 
 	/* 	// test Attach file
@@ -72,6 +72,6 @@ func main() {
 	// wait services stoped
 	time.Sleep(1 * time.Second)
 
-	msTeamsServise.SendMessage("BugNetSyncService stoped.")
+	msTeamsServise.SendMessage("Service stoped.")
 	log.Print("BugNetSyncService stoped.")
 }
