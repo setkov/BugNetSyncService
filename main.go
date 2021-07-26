@@ -39,26 +39,30 @@ func main() {
 	syncService := SyncService.NewSyncService(bugNetService, tfsService, config.IdleMode)
 	syncService.Start()
 
-/* 	// test Attach file
-	time.Sleep(2 * time.Second)
-	log.Print("test Attach file")
-	mes, err := bugNetService.GetMessage(1301)
-	if err != nil {
-		log.Print(err)
-	}
-	log.Print(mes)
-	bytes, err := bugNetService.LoadAttachment(mes)
-	if err != nil {
-		log.Print(err)
-	}
-	//log.Print(bytes)
-	// workItem, err := tfsService.AddWorkItemAttachment(mes.TfsId, mes.FileName.String, bytes)
-	workItem, err := tfsService.AddWorkItemAttachment(290704, mes.FileName.String, bytes)
-	if err != nil {
-		log.Print(err)
-	} else {
-		log.Print("Loaded to work item ", workItem.Id)
-	} */
+	// test send message
+	msTeamsServise := Common.NewMSTeamsService("https://outlook.office.com/webhook/3e99495e-14ea-4806-ba60-616ee03e4d1e@9282aa4b-7330-45c1-8391-ef6e504d84b9/IncomingWebhook/b356823fa9bd452ea09c547d1af5040c/6bc06d46-a37e-49d2-b9b4-3157037ada58", "BugNetSyncService")
+	msTeamsServise.SendMessage("test")
+
+	/* 	// test Attach file
+	   	time.Sleep(2 * time.Second)
+	   	log.Print("test Attach file")
+	   	mes, err := bugNetService.GetMessage(1301)
+	   	if err != nil {
+	   		log.Print(err)
+	   	}
+	   	log.Print(mes)
+	   	bytes, err := bugNetService.LoadAttachment(mes)
+	   	if err != nil {
+	   		log.Print(err)
+	   	}
+	   	//log.Print(bytes)
+	   	// workItem, err := tfsService.AddWorkItemAttachment(mes.TfsId, mes.FileName.String, bytes)
+	   	workItem, err := tfsService.AddWorkItemAttachment(290704, mes.FileName.String, bytes)
+	   	if err != nil {
+	   		log.Print(err)
+	   	} else {
+	   		log.Print("Loaded to work item ", workItem.Id)
+	   	} */
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
