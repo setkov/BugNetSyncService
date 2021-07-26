@@ -22,6 +22,9 @@ func main() {
 		log.Print(err)
 	}
 
+	msTeamsServise := Common.NewMSTeamsService(config.MSTeamsWebhookUrl, "BugNetSyncService")
+	msTeamsServise.SendMessage("BugNetSyncService started.")
+
 	log.Print("BugNet data service open...")
 	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString, config.BugNetDomainUrl, config.BugNetАuthorizationToken)
 	if err := bugNetService.Open(); err != nil {
@@ -38,10 +41,6 @@ func main() {
 
 	syncService := SyncService.NewSyncService(bugNetService, tfsService, config.IdleMode)
 	syncService.Start()
-
-	// test send message
-	msTeamsServise := Common.NewMSTeamsService("https://outlook.office.com/webhook/3e99495e-14ea-4806-ba60-616ee03e4d1e@9282aa4b-7330-45c1-8391-ef6e504d84b9/IncomingWebhook/b356823fa9bd452ea09c547d1af5040c/6bc06d46-a37e-49d2-b9b4-3157037ada58", "BugNetSyncService")
-	msTeamsServise.SendMessage("test")
 
 	/* 	// test Attach file
 	   	time.Sleep(2 * time.Second)
@@ -73,5 +72,6 @@ func main() {
 	// wait services stoped
 	time.Sleep(1 * time.Second)
 
+	msTeamsServise.SendMessage("BugNetSyncService stoped.")
 	log.Print("BugNetSyncService stoped.")
 }

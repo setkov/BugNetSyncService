@@ -15,6 +15,7 @@ type Config struct {
 	BugNetАuthorizationToken string
 	TfsBaseUri               string
 	TfsАuthorizationToken    string
+	MSTeamsWebhookUrl        string
 	IdleMode                 bool
 }
 
@@ -61,6 +62,9 @@ func (c *Config) loadEnvironment() {
 	}
 	if tfsАuthorizationToken, exists := os.LookupEnv("TFS_АUTHORIZATION_TOKEN"); exists {
 		c.TfsАuthorizationToken = tfsАuthorizationToken
+	}
+	if msTeamsWebhookUrl, exists := os.LookupEnv("MSTEAMS_WEBHOOK_URL"); exists {
+		c.MSTeamsWebhookUrl = msTeamsWebhookUrl
 	}
 	if idleMode, exists := os.LookupEnv("IDLE_MODE"); exists {
 		c.IdleMode, _ = strconv.ParseBool(idleMode)
