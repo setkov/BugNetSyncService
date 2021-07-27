@@ -23,7 +23,9 @@ func main() {
 	}
 
 	msTeamsServise := Common.NewMSTeamsService(config.MSTeamsWebhookUrl, "BugNetSyncService")
-	msTeamsServise.SendMessage("Service started.")
+	if !config.IdleMode {
+		msTeamsServise.SendMessage("Service started.")
+	}
 
 	log.Print("BugNet data service open...")
 	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString, config.BugNetDomainUrl, config.BugNetАuthorizationToken)
@@ -72,6 +74,8 @@ func main() {
 	// wait services stoped
 	time.Sleep(1 * time.Second)
 
-	msTeamsServise.SendMessage("Service stoped.")
+	if !config.IdleMode {
+		msTeamsServise.SendMessage("Service stoped.")
+	}
 	log.Print("BugNetSyncService stoped.")
 }

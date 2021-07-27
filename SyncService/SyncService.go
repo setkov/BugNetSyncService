@@ -42,7 +42,7 @@ func (s *SyncService) Start() {
 					log.Print(err)
 					errorWithCategory, ok := err.(*Common.ErrorWithCategory)
 					if ok {
-						if errorWithCategory.Category() == Common.Error {
+						if !s.idleMode && errorWithCategory.Category() == Common.Error {
 							s.MSTeamsService.SendMessage(errorWithCategory.Error())
 						}
 					}
@@ -109,7 +109,7 @@ func (s *SyncService) syncMessage() error {
 		}
 	}
 
-	if message.Operation.String == "add attachment" {
+	if 1 == 0 && message.Operation.String == "add attachment" {
 		log.Print("AddWorkItemAttachment")
 		if s.idleMode {
 			log.Print("IdleMode ON. Fake added to work item ", message.TfsId)
