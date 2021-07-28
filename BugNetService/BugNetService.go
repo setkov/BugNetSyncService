@@ -11,37 +11,35 @@ import (
 
 // BugNet data service
 type DataService struct {
-	ConnectionString   string
-	DomainUrl          string
-	АuthorizationToken string
-	Db                 *sql.DB
+	credentials        Common.BugNetCredentials
+	authorizationToken string
+	db                 *sql.DB
 }
 
 // New data service
-func NewDataService(connectionString string, domainUrl string, authorizationToken string) *DataService {
-	return &DataService{
-		ConnectionString:   connectionString,
-		DomainUrl:          domainUrl,
-		АuthorizationToken: authorizationToken,
+func NewDataService(credentials Common.BugNetCredentials) (*DataService, error) {
+	var dataService = &DataService{
+		credentials: credentials,
 	}
-}
 
-// Open data connection
-func (s *DataService) Open() error {
+	//	to-do: get authorizationToken
+
+	// open data connection
 	var err error
-	s.Db, err = sql.Open("sqlserver", s.ConnectionString)
+	dataService.db, err = sql.Open("sqlserver", credentials.ConnectionString)
 	if err != nil {
-		return Common.NewError("Open sql connection. " + err.Error())
+		return dataService, Common.NewError("Open sql connection. " + err.Error())
 	}
-	if err = s.Db.Ping(); err != nil {
-		return Common.NewError("Test sql connection. " + err.Error())
+	if err = dataService.db.Ping(); err != nil {
+		return dataService, Common.NewError("Test sql connection. " + err.Error())
 	}
-	return nil
+
+	return dataService, nil
 }
 
 // Close data connection
 func (s *DataService) Close() error {
-	if err := s.Db.Close(); err != nil {
+	if err := s.db.Close(); err != nil {
 		return Common.NewError("Close sql connection. " + err.Error())
 	}
 	return nil
@@ -51,7 +49,7 @@ func (s *DataService) Close() error {
 func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 	var que = MessageQueue{}
 
-	rows, err := s.Db.Query("select top (@top) [Id],[Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue order by link desc", sql.Named("top", top))
+	rows, err := s.db.Query("select top (@top) [Id],[Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue order by link desc", sql.Named("top", top))
 	if err != nil {
 		return &que, Common.NewError("Get message queue. " + err.Error())
 	}
@@ -71,7 +69,7 @@ func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 func (s *DataService) GetMessage(id int) (*Message, error) {
 	var mes Message
 	tsql := "select [Id],[Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue where Id = @Id"
-	if err := s.Db.QueryRow(tsql, sql.Named("Id", id)).Scan(&mes.Id, &mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
+	if err := s.db.QueryRow(tsql, sql.Named("Id", id)).Scan(&mes.Id, &mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
 		if err == sql.ErrNoRows {
 			return &mes, Common.NewWarning("Pull message. " + err.Error())
 		} else {
@@ -85,7 +83,7 @@ func (s *DataService) GetMessage(id int) (*Message, error) {
 func (s *DataService) PullMessage() (*Message, error) {
 	var mes Message
 	tsql := "select top 1 [Id],[Link],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue where DateSync is null order by link"
-	if err := s.Db.QueryRow(tsql).Scan(&mes.Id, &mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
+	if err := s.db.QueryRow(tsql).Scan(&mes.Id, &mes.Link, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
 		if err == sql.ErrNoRows {
 			return &mes, Common.NewWarning("Pull message. " + err.Error())
 		} else {
@@ -97,7 +95,7 @@ func (s *DataService) PullMessage() (*Message, error) {
 
 // Push message date sync
 func (s *DataService) PushMessageDateSync(mes *Message) error {
-	_, err := s.Db.Exec("update dbo.Iserv_MessageQueue set DateSync = GETDATE() where Id = @Id", sql.Named("Id", mes.Id))
+	_, err := s.db.Exec("update dbo.Iserv_MessageQueue set DateSync = GETDATE() where Id = @Id", sql.Named("Id", mes.Id))
 	if err != nil {
 		return Common.NewError("Push message date sync. " + err.Error())
 	}
@@ -116,9 +114,9 @@ func (s *DataService) LoadAttachment(mes *Message) ([]byte, error) {
 
 	req.AddCookie(&http.Cookie{
 		Name:     "BugNET",
-		Value:    s.АuthorizationToken,
+		Value:    s.authorizationToken,
 		Path:     "/",
-		Domain:   s.DomainUrl,
+		Domain:   s.credentials.DomainUrl,
 		HttpOnly: true,
 	})
 	resp, err := client.Do(req)

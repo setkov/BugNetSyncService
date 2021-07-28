@@ -28,8 +28,8 @@ func main() {
 	}
 
 	log.Print("BugNet data service open...")
-	bugNetService := BugNetService.NewDataService(config.BugNetConnectionString, config.BugNetDomainUrl, config.BugNetАuthorizationToken)
-	if err := bugNetService.Open(); err != nil {
+	bugNetService, err := BugNetService.NewDataService(config.BugNetCredentials)
+	if err != nil {
 		log.Print(err)
 	} else {
 		log.Print("conected.")

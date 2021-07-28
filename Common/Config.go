@@ -9,14 +9,19 @@ import (
 
 const configFileName string = "config.json"
 
+type BugNetCredentials struct {
+	ConnectionString string
+	DomainUrl        string
+	UserName         string
+	Password         string
+}
+
 type Config struct {
-	BugNetConnectionString   string
-	BugNetDomainUrl          string
-	BugNetАuthorizationToken string
-	TfsBaseUri               string
-	TfsАuthorizationToken    string
-	MSTeamsWebhookUrl        string
-	IdleMode                 bool
+	BugNetCredentials     BugNetCredentials
+	TfsBaseUri            string
+	TfsАuthorizationToken string
+	MSTeamsWebhookUrl     string
+	IdleMode              bool
 }
 
 // New config
@@ -49,13 +54,16 @@ func (c *Config) loadJsonFile() error {
 // Load configuration from environment variables
 func (c *Config) loadEnvironment() {
 	if bugNetConnectionString, exists := os.LookupEnv("BUG_NET_CONNECTION_STRING"); exists {
-		c.BugNetConnectionString = bugNetConnectionString
+		c.BugNetCredentials.ConnectionString = bugNetConnectionString
 	}
 	if bugNetDomainUrl, exists := os.LookupEnv("BUG_NET_DOMAIN_URL"); exists {
-		c.BugNetDomainUrl = bugNetDomainUrl
+		c.BugNetCredentials.DomainUrl = bugNetDomainUrl
 	}
-	if bugNetАuthorizationToken, exists := os.LookupEnv("BUG_NET_АUTHORIZATION_TOKEN"); exists {
-		c.BugNetАuthorizationToken = bugNetАuthorizationToken
+	if bugNetUserName, exists := os.LookupEnv("BUG_NET_USER_NAME"); exists {
+		c.BugNetCredentials.UserName = bugNetUserName
+	}
+	if bugNetPassword, exists := os.LookupEnv("BUG_NET_PASSWORD"); exists {
+		c.BugNetCredentials.Password = bugNetPassword
 	}
 	if tfsBaseUri, exists := os.LookupEnv("TFS_BASE_URI"); exists {
 		c.TfsBaseUri = tfsBaseUri
