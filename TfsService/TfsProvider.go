@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	//"log"
 	"net/http"
 )
 
@@ -105,17 +104,28 @@ func (p *tfsProvider) GetRelations(ids TfsIds, linkType string) (TfsRelations, e
 
 // Get work items
 func (p *tfsProvider) GetWorkItems(ids TfsIds, fields []string) (TfsWorkItems, error) {
-	var workItems TfsWorkItems
+	var workItems, workItemsPart TfsWorkItems
 
-	res, err := p.getWorkItemsBatch(ids, fields)
-	if err != nil {
-		return workItems, Common.NewError("Get work items. " + err.Error())
+	//  get work items by 200 items
+	var size int = 200
+	var idsPage int = 0
+	var idsPart = ids.TakePart(size, idsPage*size)
+	for len(idsPart.Ids) > 0 {
+		res, err := p.getWorkItemsBatch(idsPart, fields)
+		if err != nil {
+			return workItems, Common.NewError("Get work items. " + err.Error())
+		}
+
+		err = json.Unmarshal([]byte(res), &workItemsPart)
+		if err != nil {
+			return workItems, Common.NewError("Parse work items. " + err.Error())
+		}
+		workItems.Items = append(workItems.Items, workItemsPart.Items...)
+
+		idsPage += 1
+		idsPart = ids.TakePart(size, idsPage*size)
 	}
 
-	err = json.Unmarshal([]byte(res), &workItems)
-	if err != nil {
-		return workItems, Common.NewError("Parse work items. " + err.Error())
-	}
 	return workItems, nil
 }
 
