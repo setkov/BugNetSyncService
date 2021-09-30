@@ -1,5 +1,5 @@
 ## BugNetSyncService
-is a microservice for sync message from BugNet HelpDesk system to TFS.
+Is a microservice for sync messages and attachments from BugNet HelpDesk system to TFS. Send status and error message to MSTeams.
 
 ###### Sync sequence diagram:
 ![Sync sequence diagram](https://github.com/setkov/BugNetSyncService/blob/master/SequenceDiagram.png)
@@ -10,20 +10,20 @@ config.json
 ```
 {
   "BugNetConnectionString": "server=BugNet_Server;database=BugNet_Database;user id=BugNet_User;password=BugNet_User_Password;",
-  "BugNetDomainUrl": "support.bug-net.com",
-  "BugNetАuthorizationToken": "bug_net_token",
+  "AttachmentServiceUrl": "support.bug-net.com/Attachment",
   "TfsBaseUri": "http://tfs_url/tfs/DefaultCollection/",
   "TfsАuthorizationToken": "tfs_token",
+  "MSTeamsWebhookUrl": "..."
   "IdleMode": false
 }
 ```
 or set environment variables (replace values from config file)
 ```
 BUG_NET_CONNECTION_STRING - connection string to SQL server
-BUG_NET_DOMAIN_URL - BugNet domain url
-BUG_NET_АUTHORIZATION_TOKEN - BugNet authorization token
+BUG_NET_ATTACHMENT_SERVICE_URL - attachments servise url
 TFS_BASE_URI - TFS base uri
 TFS_АUTHORIZATION_TOKEN - TFS authorization token
+MSTEAMS_WEBHOOK_URL - MSteams webhook url
 IDLE_MODE - run service in idle mode (default value is false)
 ```    
 ###### Run service in docker
