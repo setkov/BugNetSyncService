@@ -7,7 +7,6 @@ import (
 
 type Message struct {
 	Id           int
-	Link         int
 	Date         time.Time
 	IssueId      int
 	TfsId        int

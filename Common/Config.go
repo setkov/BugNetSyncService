@@ -9,15 +9,9 @@ import (
 
 const configFileName string = "config.json"
 
-type BugNetCredentials struct {
-	ConnectionString string
-	DomainUrl        string
-	UserName         string
-	Password         string
-}
-
 type Config struct {
-	BugNetCredentials     BugNetCredentials
+	ConnectionString      string
+	AttachmentServiceUrl  string
 	TfsBaseUri            string
 	TfsАuthorizationToken string
 	MSTeamsWebhookUrl     string
@@ -54,16 +48,10 @@ func (c *Config) loadJsonFile() error {
 // Load configuration from environment variables
 func (c *Config) loadEnvironment() {
 	if bugNetConnectionString, exists := os.LookupEnv("BUG_NET_CONNECTION_STRING"); exists {
-		c.BugNetCredentials.ConnectionString = bugNetConnectionString
+		c.ConnectionString = bugNetConnectionString
 	}
-	if bugNetDomainUrl, exists := os.LookupEnv("BUG_NET_DOMAIN_URL"); exists {
-		c.BugNetCredentials.DomainUrl = bugNetDomainUrl
-	}
-	if bugNetUserName, exists := os.LookupEnv("BUG_NET_USER_NAME"); exists {
-		c.BugNetCredentials.UserName = bugNetUserName
-	}
-	if bugNetPassword, exists := os.LookupEnv("BUG_NET_PASSWORD"); exists {
-		c.BugNetCredentials.Password = bugNetPassword
+	if attachmentServiceUrl, exists := os.LookupEnv("BUG_NET_ATTACHMENT_SERVICE_URL"); exists {
+		c.AttachmentServiceUrl = attachmentServiceUrl
 	}
 	if tfsBaseUri, exists := os.LookupEnv("TFS_BASE_URI"); exists {
 		c.TfsBaseUri = tfsBaseUri

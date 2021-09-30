@@ -28,7 +28,7 @@ func main() {
 	}
 
 	log.Print("BugNet data service open...")
-	bugNetService, err := BugNetService.NewDataService(config.BugNetCredentials)
+	bugNetService, err := BugNetService.NewDataService(config)
 	if err != nil {
 		log.Print(err)
 	} else {
@@ -47,18 +47,18 @@ func main() {
 	/* 	// test Attach file
 	   	time.Sleep(2 * time.Second)
 	   	log.Print("test Attach file")
-	   	mes, err := bugNetService.GetMessage(1301)
+	   	mes, err := bugNetService.GetMessage(23115)
 	   	if err != nil {
 	   		log.Print(err)
 	   	}
 	   	log.Print(mes)
-	   	bytes, err := bugNetService.LoadAttachment(mes)
+	   	bytes, err := bugNetService.LoadAttachment(int(mes.AttachmentId.Int32))
 	   	if err != nil {
 	   		log.Print(err)
 	   	}
 	   	//log.Print(bytes)
-	   	// workItem, err := tfsService.AddWorkItemAttachment(mes.TfsId, mes.FileName.String, bytes)
-	   	workItem, err := tfsService.AddWorkItemAttachment(290704, mes.FileName.String, bytes)
+	   	workItem, err := tfsService.AddWorkItemAttachment(mes.TfsId, mes.FileName.String, bytes)
+	   	//workItem, err := tfsService.AddWorkItemAttachment(290704, mes.FileName.String, bytes)
 	   	if err != nil {
 	   		log.Print(err)
 	   	} else {

@@ -109,13 +109,13 @@ func (s *SyncService) syncMessage() error {
 		}
 	}
 
-	if 1 == 0 && message.Operation.String == "add attachment" {
+	if message.Operation.String == "add attachment" {
 		log.Print("AddWorkItemAttachment")
 		if s.idleMode {
 			log.Print("IdleMode ON. Fake added to work item ", message.TfsId)
 		} else {
 			log.Print("LoadAttachment")
-			bytes, err := s.DataService.LoadAttachment(message)
+			bytes, err := s.DataService.LoadAttachment(int(message.AttachmentId.Int32))
 			if err != nil {
 				return err
 			}
