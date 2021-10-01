@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 )
 
 const apiVersion = "api-version=5.0"
@@ -161,7 +162,7 @@ func (p *tfsProvider) CreateAttachment(fileName string, content []byte) (Attachm
 	// }
 	//log.Print(body)
 
-	requestUrl := fmt.Sprintf("_apis/wit/attachments?fileName=%s&%s", fileName, apiVersion)
+	requestUrl := fmt.Sprintf("_apis/wit/attachments?fileName=%s&%s", url.QueryEscape(fileName), apiVersion)
 	res, err := p.doRequest("POST", requestUrl, "application/octet-stream", content)
 	if err != nil {
 		return attachmentReference, Common.NewError("Create attachment. " + err.Error())
