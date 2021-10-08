@@ -3,6 +3,7 @@ package WebUI
 import (
 	"fmt"
 	"html/template"
+	"strings"
 	"time"
 )
 
@@ -11,12 +12,20 @@ func TextToHtml(str string) template.HTML {
 	return template.HTML(str)
 }
 
+// Unescape
+func Unescape(str string) string {
+	var unescape string
+	unescape = strings.Replace(str, "&nbsp;", " ", -1)
+	unescape = strings.Replace(unescape, "&quot;", "'", -1)
+	return unescape
+}
+
 // Remove html tags
 func HtmlToText(str string) string {
 	var text string
 	var skip bool
 
-	for _, v := range str {
+	for _, v := range Unescape(str) {
 		s := string(v)
 		if s == "<" {
 			skip = true
