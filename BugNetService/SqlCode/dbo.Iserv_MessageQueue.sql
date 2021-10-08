@@ -6,7 +6,7 @@ GO
 CREATE TABLE dbo.Iserv_MessageQueue
 (
 	[Id] INT IDENTITY(1,1) NOT NULL,
-	[Link] AS ([Id]) PERSISTED,
+	[Link] AS ([Id]) PERSISTED, -- deprecated
 	[Date] SMALLDATETIME CONSTRAINT [DF_Iserv_MessageQueue_Date] DEFAULT (GETDATE()) NOT NULL,
 	[IssueId] INT NOT NULL,
 	[TfsId] INT NOT NULL,
@@ -18,8 +18,9 @@ CREATE TABLE dbo.Iserv_MessageQueue
 	[TfsUrl] AS 'http://tfs2017.compulink.local:8080/tfs/DefaultCollection/IServ/_workitems?id=' + cast([TfsId] as NVARCHAR(250)) PERSISTED,
 	[AttachmentId] INT,
 	[FileName] NVARCHAR(250),
-	[ContentType] NVARCHAR(250),
+	[ContentType] NVARCHAR(250),  -- deprecated
 	[FileUrl] AS 'http://support.it-serv.ru/bugnet/Issues/UserControls/DownloadAttachment.axd?id=' + cast([AttachmentId] as NVARCHAR(250)) PERSISTED,
+	[ProjectName] NVARCHAR(50),
 	CONSTRAINT [PK_Iserv_MessageQueue] PRIMARY KEY CLUSTERED ([Id] ASC) ON [PRIMARY]
 ) ON [PRIMARY] 
 GO

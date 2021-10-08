@@ -18,8 +18,8 @@ type Message struct {
 	TfsUrl       sql.NullString
 	AttachmentId sql.NullInt32
 	FileName     sql.NullString
-	ContentType  sql.NullString
 	FileUrl      sql.NullString
+	ProjectName  sql.NullString
 }
 
 type MessageQueue struct {

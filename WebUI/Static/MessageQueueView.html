@@ -16,6 +16,7 @@
                 <thead class="thead-light">
                     <tr>
                         <th>Date (Desc)</th>
+                        <th>Project</th>
                         <th>HelpDesk Issue</th>
                         <th>TFS WorkItem</th>
                         <th>User</th>
@@ -27,6 +28,7 @@
                 {{range .Messages}}
                     <tr>
                         <td>{{datetime .Date}}</td>
+                        <td>{{.ProjectName.String}}</td>
                         <td><a class="text-decoration-none" target="_blank" href="{{.IssueUrl.String}}" title="View">{{.IssueId}}</a></td>
                         <td><a class="text-decoration-none" target="_blank" href="{{.TfsUrl.String}}" title="View">{{.TfsId}}</a></td>
                         <td>{{.User.String}}</td>

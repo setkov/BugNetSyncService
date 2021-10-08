@@ -6,7 +6,8 @@ GO
 -- =============================================
 -- Author:		S-Setkov
 -- Create date: 04.01.2021
--- Alter date:	29.09.2021 test update "Comment" column
+-- Alter date:	08.10.2021 add [ProjectName] column
+--				29.09.2021 test update [Comment] column
 --				12.01.2021
 -- Description:	Iserv sunc comment
 -- =============================================
@@ -24,18 +25,21 @@ BEGIN
 
 	IF UPDATE(Comment)
 	BEGIN
-		INSERT	dbo.Iserv_MessageQueue(IssueId, TfsId, [User], [Operation], [Message])
+		INSERT	dbo.Iserv_MessageQueue(IssueId, TfsId, [User], [Operation], [Message], [ProjectName])
 		SELECT	i.IssueId, 
 				i.TfsId, 
 				ISNULL(up.DisplayName, u.UserName) AS [User],
 				@operation AS [Operation],
-				c.Comment AS [Message]
+				c.Comment AS [Message],
+				p.ProjectName
 		FROM INSERTED AS INS
 			INNER JOIN dbo.BugNet_IssueComments c
 				ON c.IssueCommentId = INS.IssueCommentID
 			INNER JOIN dbo.BugNet_Issues i
 				ON i.IssueId = c.IssueId
 				AND i.TfsId <> 0
+			INNER JOIN  dbo.BugNet_Projects p
+				ON p.ProjectId = i.ProjectId
 			INNER JOIN dbo.Users u
 				ON u.UserId = c.UserId
 			LEFT JOIN dbo.BugNet_UserProfiles up

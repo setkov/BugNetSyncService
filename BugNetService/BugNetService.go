@@ -47,7 +47,7 @@ func (s *DataService) Close() error {
 func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 	var que = MessageQueue{}
 
-	rows, err := s.db.Query("select top (@top) [Id],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue order by id desc", sql.Named("top", top))
+	rows, err := s.db.Query("select top (@top) [Id],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[FileUrl],[ProjectName] from dbo.Iserv_MessageQueue order by id desc", sql.Named("top", top))
 	if err != nil {
 		return &que, Common.NewError("Get message queue. " + err.Error())
 	}
@@ -55,7 +55,7 @@ func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 
 	for rows.Next() {
 		var mes Message
-		if err := rows.Scan(&mes.Id, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
+		if err := rows.Scan(&mes.Id, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.FileUrl, &mes.ProjectName); err != nil {
 			return &que, Common.NewError("Get message queue row. " + err.Error())
 		}
 		que.Messages = append(que.Messages, &mes)
@@ -66,8 +66,8 @@ func (s *DataService) GetMessageQueue(top int) (*MessageQueue, error) {
 // Get message by id
 func (s *DataService) GetMessage(id int) (*Message, error) {
 	var mes Message
-	tsql := "select [Id],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue where Id = @Id"
-	if err := s.db.QueryRow(tsql, sql.Named("Id", id)).Scan(&mes.Id, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
+	tsql := "select [Id],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[FileUrl],[ProjectName] from dbo.Iserv_MessageQueue where Id = @Id"
+	if err := s.db.QueryRow(tsql, sql.Named("Id", id)).Scan(&mes.Id, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.FileUrl, &mes.ProjectName); err != nil {
 		if err == sql.ErrNoRows {
 			return &mes, Common.NewWarning("Pull message. " + err.Error())
 		} else {
@@ -80,8 +80,8 @@ func (s *DataService) GetMessage(id int) (*Message, error) {
 // Pull message for sync
 func (s *DataService) PullMessage() (*Message, error) {
 	var mes Message
-	tsql := "select top 1 [Id],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[ContentType],[FileUrl] from dbo.Iserv_MessageQueue where DateSync is null order by id"
-	if err := s.db.QueryRow(tsql).Scan(&mes.Id, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.ContentType, &mes.FileUrl); err != nil {
+	tsql := "select top 1 [Id],[Date],[IssueId],[TfsId],[User],[Operation],[Message],[DateSync],[IssueUrl],[TfsUrl],[AttachmentId],[FileName],[FileUrl],[ProjectName] from dbo.Iserv_MessageQueue where DateSync is null order by id"
+	if err := s.db.QueryRow(tsql).Scan(&mes.Id, &mes.Date, &mes.IssueId, &mes.TfsId, &mes.User, &mes.Operation, &mes.Message, &mes.DateSync, &mes.IssueUrl, &mes.TfsUrl, &mes.AttachmentId, &mes.FileName, &mes.FileUrl, &mes.ProjectName); err != nil {
 		if err == sql.ErrNoRows {
 			return &mes, Common.NewWarning("Pull message. " + err.Error())
 		} else {
