@@ -92,9 +92,11 @@ func (s *SyncService) syncMessage() error {
 		log.Print("Related WorkItems: ", tfsWorkItems)
 	}
 
+	// sync comment
 	for _, tfsWorkItem := range tfsWorkItems.Items {
-		if (tfsWorkItem.Fields.WorkItemType == "Issue" || tfsWorkItem.Fields.WorkItemType == "Requirement" || tfsWorkItem.Fields.WorkItemType == "Bug") &&
-			(tfsWorkItem.Fields.State == "Active" || tfsWorkItem.Fields.State == "Proposed" || tfsWorkItem.Fields.State == "Resolved") {
+		if tfsWorkItem.Id == message.TfsId ||
+			(tfsWorkItem.Fields.WorkItemType == "Issue" || tfsWorkItem.Fields.WorkItemType == "Requirement" || tfsWorkItem.Fields.WorkItemType == "Bug") &&
+				(tfsWorkItem.Fields.State == "Active" || tfsWorkItem.Fields.State == "Proposed" || tfsWorkItem.Fields.State == "Resolved") {
 			log.Print("AddWorkItemComment")
 			if s.idleMode {
 				log.Print("IdleMode ON. Fake added to work item ", tfsWorkItem.Id)
@@ -109,6 +111,7 @@ func (s *SyncService) syncMessage() error {
 		}
 	}
 
+	// sync attachment
 	if message.Operation.String == "add attachment" {
 		log.Print("AddWorkItemAttachment")
 		if s.idleMode {
