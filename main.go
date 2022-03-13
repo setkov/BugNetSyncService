@@ -64,6 +64,14 @@ func main() {
 	   	} else {
 	   		log.Print("Loaded to work item ", workItem.Id)
 	   	} */
+	// test message image
+	message, err := bugNetService.GetMessage(41104)
+	if err == nil {
+		messageImages := BugNetService.GetMessageImages(message.Message.String)
+		for _, image := range messageImages.Images {
+			log.Print(image)
+		}
+	}
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
