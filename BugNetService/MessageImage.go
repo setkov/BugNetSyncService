@@ -1,27 +1,9 @@
 package BugNetService
 
-// type Src struct {
-// 	ext  string
-// 	body string
-// }
-
-// parse src from string
-// func (s *Src) ParseFromString(str string) error {
-
-// 	return Common.NewError("Error on parse src from string")
-// }
-
-// // decode body from base64
-// func (s *Src) DecodeFromBase64() ([]byte, error) {
-// 	return base64.StdEncoding.DecodeString(s.body)
-// }
-
 type MessageImage struct {
 	StartPosition int
 	StopPosition  int
-	Token         string
-	Atl           string
-	Src           string
+	ImageToken    string
 }
 
 type MessageImages struct {
@@ -41,8 +23,8 @@ func GetMessageImages(html string) MessageImages {
 		} else if len(token) > 0 {
 			token += string(char)
 			if char == '>' {
-				if len(token) > 3 &&  token[:4] == "<img" {
-					image := MessageImage{StartPosition: startPosition, StopPosition: i, Token: token}
+				if len(token) > 3 && token[:4] == "<img" {
+					image := MessageImage{StartPosition: startPosition, StopPosition: i, ImageToken: token}
 					images.Images = append(images.Images, image)
 				}
 				token = ""
@@ -52,4 +34,3 @@ func GetMessageImages(html string) MessageImages {
 
 	return images
 }
-
