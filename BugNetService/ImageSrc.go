@@ -1,12 +1,15 @@
 package BugNetService
 
 import (
+	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"io/ioutil"
 	"regexp"
 )
 
 type ImageSrc struct {
+	Name string
 	Ext  string
 	Body string
 }
@@ -26,7 +29,12 @@ func (s *ImageSrc) SaveAsFile(fileName string) {
 
 // get image src from message image
 func GetImageSrc(image MessageImage) ImageSrc {
-	var ext, body string
+	var name, ext, body string
+
+	// generate random image name
+	bytes := make([]byte, 16)
+	rand.Read(bytes)
+	name = "img_" + hex.EncodeToString(bytes)
 
 	// get ext
 	re := regexp.MustCompile(`data:image/(.*);`)
@@ -42,5 +50,5 @@ func GetImageSrc(image MessageImage) ImageSrc {
 		body = match[1]
 	}
 
-	return ImageSrc{Ext: ext, Body: body}
+	return ImageSrc{Name: name, Ext: ext, Body: body}
 }

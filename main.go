@@ -69,9 +69,9 @@ func main() {
 	message, err := bugNetService.GetMessage(41104)
 	if err == nil {
 		messageImages := BugNetService.GetMessageImages(message.Message.String)
-		for i, image := range messageImages.Images {
+		for _, image := range messageImages.Images {
 			imageSrc := BugNetService.GetImageSrc(image)
-			fileName := fmt.Sprintf("d:\\Image_%d.%s", i, imageSrc.Ext)
+			fileName := fmt.Sprintf("d:\\%s.%s", imageSrc.Name, imageSrc.Ext)
 			log.Print(fileName)
 			imageSrc.SaveAsFile(fileName)
 		}
