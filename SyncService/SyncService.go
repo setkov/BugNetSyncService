@@ -38,14 +38,17 @@ func (s *SyncService) Start() {
 		for {
 			log.Print("Sync messages...")
 			for {
-				if err := s.syncMessage(); err != nil {
-					log.Print(err)
-					errorWithCategory, ok := err.(*Common.ErrorWithCategory)
-					if ok {
-						if !s.idleMode && errorWithCategory.Category() == Common.Error {
-							s.MSTeamsService.SendMessage(errorWithCategory.Error())
-						}
-					}
+				log.Print("PullMessage")
+				message, err := s.DataService.PullMessage()
+				if err != nil {
+					LogError(s, err)
+					break
+				} else {
+					log.Print("Message: ", message)
+				}
+				err = s.SyncMessage(message)
+				if err != nil {
+					LogError(s, err)
 					break
 				}
 				if s.idleMode {
@@ -70,15 +73,20 @@ func (s *SyncService) Stop() {
 	s.stop <- true
 }
 
-// Sync message
-func (s *SyncService) syncMessage() error {
-	log.Print("PullMessage")
-	message, err := s.DataService.PullMessage()
-	if err != nil {
-		return err
-	} else {
-		log.Print("Message: ", message)
+// Log error
+func LogError(s *SyncService, err error) {
+	log.Print(err)
+	errorWithCategory, ok := err.(*Common.ErrorWithCategory)
+	if ok {
+		if !s.idleMode && errorWithCategory.Category() == Common.Error {
+			s.MSTeamsService.SendMessage(errorWithCategory.Error())
+		}
 	}
+}
+
+// Sync message
+func (s *SyncService) SyncMessage(message *BugNetService.Message) error {
+
 	comment := fmt.Sprintf("<p><i>%v %v %v:</i></p>%v", message.Date.Format("2006-01-02 15:04"), message.User.String, message.Operation.String, message.Message.String)
 	log.Print("Comment: ", comment)
 
