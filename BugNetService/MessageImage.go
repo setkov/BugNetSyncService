@@ -3,7 +3,8 @@ package BugNetService
 type MessageImage struct {
 	StartPosition int
 	StopPosition  int
-	ImageToken    string
+	ImageTag      string
+	ImageSrc      ImageSrc
 }
 
 type MessageImages struct {
@@ -14,20 +15,21 @@ type MessageImages struct {
 func GetMessageImages(html string) MessageImages {
 	var images MessageImages
 	var startPosition int
-	var token string
+	var tag string
 
 	for i, char := range html {
 		if char == '<' {
 			startPosition = i
-			token = string(char)
-		} else if len(token) > 0 {
-			token += string(char)
+			tag = string(char)
+		} else if len(tag) > 0 {
+			tag += string(char)
 			if char == '>' {
-				if len(token) > 3 && token[:4] == "<img" {
-					image := MessageImage{StartPosition: startPosition, StopPosition: i, ImageToken: token}
+				if len(tag) > 3 && tag[:4] == "<img" {
+					src := GetImageSrc(tag)
+					image := MessageImage{StartPosition: startPosition, StopPosition: i, ImageTag: tag, ImageSrc: src}
 					images.Images = append(images.Images, image)
 				}
-				token = ""
+				tag = ""
 			}
 		}
 	}

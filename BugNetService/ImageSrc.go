@@ -27,8 +27,8 @@ func (s *ImageSrc) SaveAsFile(fileName string) {
 	}
 }
 
-// get image src from message image
-func GetImageSrc(image MessageImage) ImageSrc {
+// get image src from image tag
+func GetImageSrc(imageTag string) ImageSrc {
 	var name, ext, body string
 
 	// generate random image name
@@ -38,14 +38,14 @@ func GetImageSrc(image MessageImage) ImageSrc {
 
 	// get ext
 	re := regexp.MustCompile(`data:image/(.*);`)
-	match := re.FindStringSubmatch(image.ImageToken)
+	match := re.FindStringSubmatch(imageTag)
 	if len(match) > 1 {
 		ext = match[1]
 	}
 
 	// get body
 	re = regexp.MustCompile(`base64,(.*)"`)
-	match = re.FindStringSubmatch(image.ImageToken)
+	match = re.FindStringSubmatch(imageTag)
 	if len(match) > 1 {
 		body = match[1]
 	}

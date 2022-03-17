@@ -70,10 +70,9 @@ func main() {
 	if err == nil {
 		messageImages := BugNetService.GetMessageImages(message.Message.String)
 		for _, image := range messageImages.Images {
-			imageSrc := BugNetService.GetImageSrc(image)
-			fileName := fmt.Sprintf("d:\\%s.%s", imageSrc.Name, imageSrc.Ext)
+			fileName := fmt.Sprintf("d:\\%s.%s", image.ImageSrc.Name, image.ImageSrc.Ext)
 			log.Print(fileName)
-			imageSrc.SaveAsFile(fileName)
+			image.ImageSrc.SaveAsFile(fileName)
 		}
 	}
 
