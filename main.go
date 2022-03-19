@@ -47,7 +47,7 @@ func main() {
 	//syncService.Start()
 
 	// test sync message
-	syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, true) // Work mode OFF
+	syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, true) // Idle Mode ON
 	message, err := bugNetService.GetMessage(41104)
 	if err != nil {
 		log.Print(err)

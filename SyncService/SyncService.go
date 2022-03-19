@@ -86,8 +86,18 @@ func LogError(s *SyncService, err error) {
 
 // Sync message
 func (s *SyncService) SyncMessage(message *BugNetService.Message) error {
-
 	comment := fmt.Sprintf("<p><i>%v %v %v:</i></p>%v", message.Date.Format("2006-01-02 15:04"), message.User.String, message.Operation.String, message.Message.String)
+
+	// find images in comment
+	images := BugNetService.GetMessageImages(comment)
+	// reverse loop images
+	for i := len(images.Images) - 1; i >= 0; i-- {
+		image := images.Images[i]
+		log.Printf("Image %v: %v.%v", i, image.ImageSrc.Name, image.ImageSrc.Ext)
+		// add images to TFS
+		// replace images in comment
+		comment = fmt.Sprintf("%v<img src=\"\" alt=\"%v.%v\" />%v", comment[:image.StartPosition], image.ImageSrc.Name, image.ImageSrc.Ext, comment[image.StopPosition+1:])
+	}
 	log.Print("Comment: ", comment)
 
 	log.Print("GetWorkItemsRelated")
