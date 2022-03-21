@@ -1,5 +1,9 @@
 package BugNetService
 
+import (
+	"strings"
+)
+
 type MessageImage struct {
 	StartPosition int
 	StopPosition  int
@@ -14,23 +18,29 @@ type MessageImages struct {
 // get message imges from html string
 func GetMessageImages(html string) MessageImages {
 	var images MessageImages
-	var startPosition int
-	var tag string
+	var i, start, stop int
 
-	for i, char := range html {
-		if char == '<' {
-			startPosition = i
-			tag = string(char)
-		} else if len(tag) > 0 {
-			tag += string(char)
-			if char == '>' {
-				if len(tag) > 3 && tag[:4] == "<img" {
-					src := GetImageSrc(tag)
-					image := MessageImage{StartPosition: startPosition, StopPosition: i, ImageTag: tag, ImageSrc: src}
-					images.Images = append(images.Images, image)
-				}
-				tag = ""
-			}
+	for {
+		i = strings.Index(html[start:], "<img")
+		if i == -1 {
+			break
+		}
+		start += i
+
+		i = strings.Index(html[start:], ">")
+		if i == -1 {
+			break
+		}
+		stop = start + i + 1
+
+		tag := html[start:stop]
+		src := GetImageSrc(tag)
+		image := MessageImage{StartPosition: start, StopPosition: stop, ImageTag: tag, ImageSrc: src}
+		images.Images = append(images.Images, image)
+
+		start = stop + 1
+		if start >= len(html) {
+			break
 		}
 	}
 

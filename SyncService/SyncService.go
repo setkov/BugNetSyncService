@@ -93,10 +93,28 @@ func (s *SyncService) SyncMessage(message *BugNetService.Message) error {
 	// reverse loop images
 	for i := len(images.Images) - 1; i >= 0; i-- {
 		image := images.Images[i]
-		log.Printf("Image %v: %v.%v", i, image.ImageSrc.Name, image.ImageSrc.Ext)
+
+		// decode image
+		imageBody, err := image.ImageSrc.DecodeBody()
+		if err != nil {
+			return Common.NewError("Decode image from comment. " + err.Error())
+		}
+
+		imageName := fmt.Sprintf("%v.%v", image.ImageSrc.Name, image.ImageSrc.Ext)
+		log.Printf("Image %v: %v", i, imageName)
+
 		// add images to TFS
+		var ref TfsService.AttachmentReference
+		if s.idleMode {
+			log.Print("IdleMode ON. Fake added commeent image to work item ", message.TfsId)
+		} else {
+			ref, err = s.TfsService.Provider.CreateAttachment(imageName, imageBody)
+			if err != nil {
+				return Common.NewError("Create image attachment. " + err.Error())
+			}
+		}
 		// replace images in comment
-		comment = fmt.Sprintf("%v<img src=\"\" alt=\"%v.%v\" />%v", comment[:image.StartPosition], image.ImageSrc.Name, image.ImageSrc.Ext, comment[image.StopPosition+1:])
+		comment = fmt.Sprintf("%v<img src=\"%v\" alt=\"%v.%v\" />%v", comment[:image.StartPosition], ref.Url, image.ImageSrc.Name, image.ImageSrc.Ext, comment[image.StopPosition+1:])
 	}
 	log.Print("Comment: ", comment)
 

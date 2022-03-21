@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"io/ioutil"
-	"regexp"
+	"strings"
 )
 
 type ImageSrc struct {
@@ -20,35 +20,41 @@ func (s *ImageSrc) DecodeBody() ([]byte, error) {
 }
 
 // save as file
-func (s *ImageSrc) SaveAsFile(fileName string) {
+func (s *ImageSrc) SaveAsFile(fileName string) error {
 	bytes, err := s.DecodeBody()
-	if err == nil {
+	if err != nil {
+		return err
+	} else {
 		ioutil.WriteFile(fileName, bytes, 0666)
+		return nil
 	}
 }
 
 // get image src from image tag
 func GetImageSrc(imageTag string) ImageSrc {
-	var name, ext, body string
-
 	// generate random image name
 	bytes := make([]byte, 16)
 	rand.Read(bytes)
-	name = "img_" + hex.EncodeToString(bytes)
-
+	name := "img_" + hex.EncodeToString(bytes)
 	// get ext
-	re := regexp.MustCompile(`data:image/(.*);`)
-	match := re.FindStringSubmatch(imageTag)
-	if len(match) > 1 {
-		ext = match[1]
-	}
-
+	ext := getSubstring(imageTag, "data:image/", ";")
 	// get body
-	re = regexp.MustCompile(`base64,(.*)"`)
-	match = re.FindStringSubmatch(imageTag)
-	if len(match) > 1 {
-		body = match[1]
-	}
+	body := getSubstring(imageTag, "base64,", "\"")
 
 	return ImageSrc{Name: name, Ext: ext, Body: body}
+}
+
+// get first substring between "start" and "end" strings
+func getSubstring(str string, start string, end string) string {
+	s := strings.Index(str, start)
+	if s == -1 {
+		return ""
+	}
+	s += len(start)
+	e := strings.Index(str[s:], end)
+	if e == -1 {
+		return ""
+	}
+	e += s
+	return str[s:e]
 }

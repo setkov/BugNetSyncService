@@ -7,7 +7,6 @@ import (
 	"BugNetSyncService/TfsService"
 	"BugNetSyncService/WebUI"
 
-	//"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -43,12 +42,12 @@ func main() {
 	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsАuthorizationToken)
 	tfsService := TfsService.NewTfsService(tfsProvider)
 
-	//syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, config.IdleMode)
-	//syncService.Start()
+	syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, config.IdleMode)
+	syncService.Start()
 
-	// test sync message
-	syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, true) // Idle Mode ON
-	message, err := bugNetService.GetMessage(41104)
+	/* 	// test sync message
+	syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, false) // Set Idle Mode
+	message, err := bugNetService.GetMessage(41196)
 	if err != nil {
 		log.Print(err)
 	} else {
@@ -56,8 +55,23 @@ func main() {
 		if err != nil {
 			log.Print(err)
 		}
-	}
-
+	} */
+	/* 	// test message image
+	message, err := bugNetService.GetMessage(41196)
+	if err != nil {
+		log.Print(err)
+	} else {
+		//log.Print(message.Message.String)
+		messageImages := BugNetService.GetMessageImages(message.Message.String)
+		for _, image := range messageImages.Images {
+			fileName := fmt.Sprintf("d:\\%s.%s", image.ImageSrc.Name, image.ImageSrc.Ext)
+			log.Print(fileName)
+			err := image.ImageSrc.SaveAsFile(fileName)
+			if err != nil {
+				log.Print(err)
+			}
+		}
+	} */
 	/* 	// test Attach file
 	   	time.Sleep(2 * time.Second)
 	   	log.Print("test Attach file")
@@ -77,16 +91,6 @@ func main() {
 	   		log.Print(err)
 	   	} else {
 	   		log.Print("Loaded to work item ", workItem.Id)
-	   	} */
-	/* 	// test message image
-	   	message, err := bugNetService.GetMessage(41104)
-	   	if err == nil {
-	   		messageImages := BugNetService.GetMessageImages(message.Message.String)
-	   		for _, image := range messageImages.Images {
-	   			fileName := fmt.Sprintf("d:\\%s.%s", image.ImageSrc.Name, image.ImageSrc.Ext)
-	   			log.Print(fileName)
-	   			image.ImageSrc.SaveAsFile(fileName)
-	   		}
 	   	} */
 
 	exitSignal := make(chan os.Signal, 1)
