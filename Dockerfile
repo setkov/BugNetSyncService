@@ -1,5 +1,5 @@
 FROM golang:alpine as builder
-RUN apk update && apk add ca-certificates && apk add tzdata && apk add git
+RUN apk add git && apk update && apk add ca-certificates && apk add tzdata
 WORKDIR /go/src/app
 COPY . .
 # Static build required so that we can safely copy the binary over.
