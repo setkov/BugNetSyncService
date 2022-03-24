@@ -114,7 +114,7 @@ func (s *SyncService) SyncMessage(message *BugNetService.Message) error {
 			}
 		}
 		// replace images in comment
-		comment = fmt.Sprintf("%v<img src=\"%v\" alt=\"%v.%v\" />%v", comment[:image.StartPosition], ref.Url, image.ImageSrc.Name, image.ImageSrc.Ext, comment[image.StopPosition+1:])
+		comment = fmt.Sprintf("%v <img src=\"%v\" alt=\"%v.%v\" /> %v", comment[:image.StartPosition], ref.Url, image.ImageSrc.Name, image.ImageSrc.Ext, comment[image.StopPosition:])
 	}
 	log.Print("Comment: ", comment)
 
