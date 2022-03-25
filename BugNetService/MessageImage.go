@@ -35,8 +35,10 @@ func GetMessageImages(html string) MessageImages {
 
 		tag := html[start:stop]
 		src := GetImageSrc(tag)
-		image := MessageImage{StartPosition: start, StopPosition: stop, ImageTag: tag, ImageSrc: src}
-		images.Images = append(images.Images, image)
+		if src.Body != "" {
+			image := MessageImage{StartPosition: start, StopPosition: stop, ImageTag: tag, ImageSrc: src}
+			images.Images = append(images.Images, image)
+		}
 
 		start = stop + 1
 		if start >= len(html) {
