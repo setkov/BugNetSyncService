@@ -44,7 +44,7 @@ func main() {
 	webUI := WebUI.NewWebUI(bugNetService)
 	webUI.Start()
 
-	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsАuthorizationToken)
+	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsAuthorizationToken)
 	tfsService := TfsService.NewTfsService(tfsProvider)
 
 	syncService := SyncService.NewSyncService(bugNetService, tfsService, messengerServise, config.IdleMode)

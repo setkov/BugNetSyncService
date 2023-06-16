@@ -13,7 +13,7 @@ type Config struct {
 	ConnectionString      string
 	AttachmentServiceUrl  string
 	TfsBaseUri            string
-	TfsАuthorizationToken string
+	TfsAuthorizationToken string
 	MSTeamsWebhookUrl     string
 	TelegramToken         string
 	TelegramChatId        string
@@ -58,8 +58,8 @@ func (c *Config) loadEnvironment() {
 	if tfsBaseUri, exists := os.LookupEnv("TFS_BASE_URI"); exists {
 		c.TfsBaseUri = tfsBaseUri
 	}
-	if tfsАuthorizationToken, exists := os.LookupEnv("TFS_АUTHORIZATION_TOKEN"); exists {
-		c.TfsАuthorizationToken = tfsАuthorizationToken
+	if tfsAuthorizationToken, exists := os.LookupEnv("TFS_AUTHORIZATION_TOKEN"); exists {
+		c.TfsAuthorizationToken = tfsAuthorizationToken
 	}
 	if msTeamsWebhookUrl, exists := os.LookupEnv("MSTEAMS_WEBHOOK_URL"); exists {
 		c.MSTeamsWebhookUrl = msTeamsWebhookUrl
