@@ -11,21 +11,21 @@ import (
 
 // Sync service
 type SyncService struct {
-	DataService    *BugNetService.DataService
-	TfsService     *TfsService.TfsService
-	MSTeamsService *Common.MSTeamsService
-	idleMode       bool
-	stop           chan bool
+	DataService      *BugNetService.DataService
+	TfsService       *TfsService.TfsService
+	MessengerService Common.MessengerService
+	idleMode         bool
+	stop             chan bool
 }
 
 // New sync service
-func NewSyncService(b *BugNetService.DataService, t *TfsService.TfsService, s *Common.MSTeamsService, idleMode bool) *SyncService {
+func NewSyncService(b *BugNetService.DataService, t *TfsService.TfsService, m Common.MessengerService, idleMode bool) *SyncService {
 	return &SyncService{
-		DataService:    b,
-		TfsService:     t,
-		MSTeamsService: s,
-		idleMode:       idleMode,
-		stop:           make(chan bool),
+		DataService:      b,
+		TfsService:       t,
+		MessengerService: m,
+		idleMode:         idleMode,
+		stop:             make(chan bool),
 	}
 }
 
@@ -79,7 +79,10 @@ func LogError(s *SyncService, err error) {
 	errorWithCategory, ok := err.(*Common.ErrorWithCategory)
 	if ok {
 		if !s.idleMode && errorWithCategory.Category() == Common.Error {
-			s.MSTeamsService.SendMessage(errorWithCategory.Error())
+			err = s.MessengerService.SendMessage(errorWithCategory.Error())
+			if err != nil {
+				log.Print(err)
+			}
 		}
 	}
 }
