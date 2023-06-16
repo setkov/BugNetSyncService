@@ -15,20 +15,23 @@ import (
 )
 
 func main() {
-	log.Print("BugNetSyncService started.")
-
 	log.Print("Load configuration.")
 	config, err := Common.NewConfig()
 	if err != nil {
 		log.Print(err)
 	}
 
-	messengerServise := Common.NewMSTeamsService(config.MSTeamsWebhookUrl, "BugNetSyncService")
+	//messengerServise := Common.NewMSTeamsService(config.MSTeamsWebhookUrl, "BugNetSyncService")
+	messengerServise := Common.NewTelegramService(config.TelegramToken, config.TelegramChatId, "BugNetSyncService")
+
+	log.Print("BugNetSyncService started.")
 	var message = "Service started"
 	if config.IdleMode {
 		message += " in idle mode"
 	}
-	messengerServise.SendMessage(message)
+	if err := messengerServise.SendMessage(message); err != nil {
+		log.Print(err)
+	}
 
 	log.Print("BugNet data service open...")
 	bugNetService, err := BugNetService.NewDataService(config)
@@ -108,6 +111,8 @@ func main() {
 	if config.IdleMode {
 		message += " in idle mode"
 	}
-	messengerServise.SendMessage(message)
+	if err := messengerServise.SendMessage(message); err != nil {
+		log.Print(err)
+	}
 	log.Print("BugNetSyncService stoped.")
 }

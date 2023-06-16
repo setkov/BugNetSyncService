@@ -15,6 +15,8 @@ type Config struct {
 	TfsBaseUri            string
 	TfsАuthorizationToken string
 	MSTeamsWebhookUrl     string
+	TelegramToken         string
+	TelegramChatId        string
 	IdleMode              bool
 }
 
@@ -61,6 +63,12 @@ func (c *Config) loadEnvironment() {
 	}
 	if msTeamsWebhookUrl, exists := os.LookupEnv("MSTEAMS_WEBHOOK_URL"); exists {
 		c.MSTeamsWebhookUrl = msTeamsWebhookUrl
+	}
+	if telegramToken, exists := os.LookupEnv("TELEGRAM_TOKEN"); exists {
+		c.TelegramToken = telegramToken
+	}
+	if telegramChatId, exists := os.LookupEnv("TELEGRAM_CHAT_ID"); exists {
+		c.TelegramChatId = telegramChatId
 	}
 	if idleMode, exists := os.LookupEnv("IDLE_MODE"); exists {
 		c.IdleMode, _ = strconv.ParseBool(idleMode)
