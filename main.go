@@ -23,10 +23,12 @@ func main() {
 		log.Print(err)
 	}
 
-	msTeamsServise := Common.NewMSTeamsService(config.MSTeamsWebhookUrl, "BugNetSyncService")
-	if !config.IdleMode {
-		msTeamsServise.SendMessage("Service started.")
+	messengerServise := Common.NewMSTeamsService(config.MSTeamsWebhookUrl, "BugNetSyncService")
+	var message = "Service started"
+	if config.IdleMode {
+		message += " in idle mode"
 	}
+	messengerServise.SendMessage(message)
 
 	log.Print("BugNet data service open...")
 	bugNetService, err := BugNetService.NewDataService(config)
@@ -42,7 +44,7 @@ func main() {
 	tfsProvider := TfsService.NewTfsProvider(config.TfsBaseUri, config.TfsАuthorizationToken)
 	tfsService := TfsService.NewTfsService(tfsProvider)
 
-	syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, config.IdleMode)
+	syncService := SyncService.NewSyncService(bugNetService, tfsService, messengerServise, config.IdleMode)
 	syncService.Start()
 
 	/* 	// test sync message
@@ -102,8 +104,10 @@ func main() {
 	// wait services stoped
 	time.Sleep(1 * time.Second)
 
-	if !config.IdleMode {
-		msTeamsServise.SendMessage("Service stoped.")
+	message = "Service stoped"
+	if config.IdleMode {
+		message += " in idle mode"
 	}
+	messengerServise.SendMessage(message)
 	log.Print("BugNetSyncService stoped.")
 }

@@ -12,15 +12,15 @@ type MSTeamsService struct {
 }
 
 // New MSTeamsService
-func NewMSTeamsService(webhookUrl string, sender string) *MSTeamsService {
-	return &MSTeamsService{
+func NewMSTeamsService(webhookUrl string, sender string) MSTeamsService {
+	return MSTeamsService{
 		WebhookUrl: webhookUrl,
 		Sender:     sender,
 	}
 }
 
 // Send message
-func (s *MSTeamsService) SendMessage(message string) error {
+func (s MSTeamsService) SendMessage(message string) error {
 	body, err := json.Marshal(map[string]interface{}{"title": s.Sender, "text": message})
 	if err != nil {
 		return NewError("Prepare MSTeams message. " + err.Error())
