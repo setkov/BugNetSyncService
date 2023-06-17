@@ -10,6 +10,7 @@ import (
 const configFileName string = "config.json"
 
 type Config struct {
+	ApplicationVersion    string
 	ConnectionString      string
 	AttachmentServiceUrl  string
 	TfsBaseUri            string
@@ -49,6 +50,9 @@ func (c *Config) loadJsonFile() error {
 
 // Load configuration from environment variables
 func (c *Config) loadEnvironment() {
+	if applicationVersion, exists := os.LookupEnv("APPLICATION_VERSION"); exists {
+		c.ApplicationVersion = applicationVersion
+	}
 	if bugNetConnectionString, exists := os.LookupEnv("BUG_NET_CONNECTION_STRING"); exists {
 		c.ConnectionString = bugNetConnectionString
 	}
