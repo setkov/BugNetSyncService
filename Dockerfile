@@ -1,5 +1,5 @@
 FROM golang:alpine as builder
-RUN apk add git && apk update && apk add ca-certificates && apk add tzdata
+RUN apk update && apk add ca-certificates tzdata
 WORKDIR /go/src/app
 COPY . .
 # Static build required so that we can safely copy the binary over.
@@ -10,5 +10,7 @@ COPY --from=builder /go/bin/BugNetSyncService /BugNetSyncService
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 
-ENV TZ Europe/Moscow
+ARG VERSION
+ENV APPLICATION_VERSION=$(VERSION)
+ENV TZ=Europe/Moscow
 ENTRYPOINT ["/BugNetSyncService"]

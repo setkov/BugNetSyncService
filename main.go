@@ -28,7 +28,7 @@ func main() {
 	if config.IdleMode {
 		message += " in idle mode"
 	}
-	message += " - " + config.ApplicationVersion
+	message += " - ver: " + config.ApplicationVersion
 	log.Print(message)
 	if !config.IdleMode {
 		if err := messengerServise.SendMessage(message); err != nil {
