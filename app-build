@@ -1,0 +1,5 @@
+#!/bin/bash
+
+git pull
+version=$(git log -1 --date=format:"%y.%m.%d.%H%M" --format="%ad(%h)")
+docker build --build-arg VERSION=$version -t bugnetsyncservice:latest .

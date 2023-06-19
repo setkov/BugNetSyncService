@@ -11,6 +11,6 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 
 ARG VERSION
-ENV APPLICATION_VERSION=$(VERSION)
+ENV APPLICATION_VERSION=$VERSION
 ENV TZ=Europe/Moscow
 ENTRYPOINT ["/BugNetSyncService"]
