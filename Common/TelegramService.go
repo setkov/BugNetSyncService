@@ -31,8 +31,8 @@ func NewTelegramService(token string, chatId string, sender string) TelegramServ
 
 // Send message
 func (s TelegramService) SendMessage(message string) error {
-	message = "*" + s.Sender + ":* " + message
-	body, err := json.Marshal(map[string]interface{}{"chat_id": s.ChatId, "text": message, "parse_mode": "MarkdownV2"})
+	message = "<b>" + s.Sender + ":</b> " + message
+	body, err := json.Marshal(map[string]interface{}{"chat_id": s.ChatId, "text": message, "parse_mode": "HTML"})
 	if err != nil {
 		return NewError("Prepare telegram message. " + err.Error())
 	}

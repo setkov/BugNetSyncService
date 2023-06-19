@@ -24,11 +24,11 @@ func main() {
 	//messengerServise := Common.NewMSTeamsService(config.MSTeamsWebhookUrl, "BugNetSyncService")
 	messengerServise := Common.NewTelegramService(config.TelegramToken, config.TelegramChatId, "BugNetSyncService")
 
-	var message = "BugNetSyncService started"
+	var message = "Service started"
 	if config.IdleMode {
 		message += " in idle mode"
 	}
-	message += ". ver: " + config.ApplicationVersion
+	message += " - ver: " + config.ApplicationVersion
 	log.Print(message)
 	if !config.IdleMode {
 		if err := messengerServise.SendMessage(message); err != nil {
@@ -110,7 +110,7 @@ func main() {
 	// wait services stoped
 	time.Sleep(1 * time.Second)
 
-	message = "BugNetSyncService stoped"
+	message = "Service stoped"
 	if config.IdleMode {
 		message += " in idle mode"
 	}
