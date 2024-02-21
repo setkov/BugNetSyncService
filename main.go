@@ -53,17 +53,17 @@ func main() {
 	syncService := SyncService.NewSyncService(bugNetService, tfsService, messengerServise, config.IdleMode)
 	syncService.Start()
 
-	/* 	// test sync message
-	syncService := SyncService.NewSyncService(bugNetService, tfsService, msTeamsServise, false) // Set Idle Mode
-	message, err := bugNetService.GetMessage(41196)
-	if err != nil {
-		log.Print(err)
-	} else {
-		err = syncService.SyncMessage(message)
+	/*	// test sync message
+		syncService := SyncService.NewSyncService(bugNetService, tfsService, messengerServise, false) // Set Idle Mode
+		msg, err := bugNetService.GetMessage(144384)
 		if err != nil {
 			log.Print(err)
-		}
-	} */
+		} else {
+			err = syncService.SyncMessage(msg)
+			if err != nil {
+				log.Print(err)
+			}
+		} */
 	/* 	// test message image
 	message, err := bugNetService.GetMessage(41196)
 	if err != nil {

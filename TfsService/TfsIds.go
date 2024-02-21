@@ -41,24 +41,14 @@ func (i *TfsIds) JoinToString(separator string) string {
 	return strings.Join(ids, separator)
 }
 
-//	Take Part
+// Take Part
 func (i *TfsIds) TakePart(size int, skip int) TfsIds {
-	var tfsIds TfsIds
-
-	// indexes
-	var first int = skip
-	var last int = skip + size - 1
-	var max int = len(i.Ids) - 1
-
-	// test indexes
-	if first >= max {
-		return tfsIds
+	if skip > len(i.Ids) {
+		skip = len(i.Ids)
 	}
-	if last > max {
-		last = max
+	end := skip + size
+	if end > len(i.Ids) {
+		end = len(i.Ids)
 	}
-
-	//slice
-	tfsIds.Ids = i.Ids[first:last]
-	return tfsIds
+	return TfsIds{Ids: i.Ids[skip:end]}
 }
