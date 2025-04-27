@@ -5,13 +5,18 @@ services:
     image: bugnetsyncservice:latest
     container_name: bugnetsyncservice
     restart: unless-stopped
+    environment:
+      - BUG_NET_CONNECTION_STRING
+      - BUG_NET_ATTACHMENT_SERVICE_URL
+      - TFS_BASE_URI
+      - TFS_AUTHORIZATION_TOKEN
+      - TELEGRAM_TOKEN
+      - TELEGRAM_CHAT_ID 
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.bss.rule=Host(`bss.dev-as-v-14.compulink.local`)"
       - "traefik.http.routers.bss.entrypoints=web"
       - "traefik.http.services.bss.loadbalancer.server.port=8080"
-    volumes:
-      - ./data:/data
     networks:
       - traefik-net
 
