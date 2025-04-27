@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  bugnetsyncservice:
+    image: bugnetsyncservice:latest
+    container_name: bugnetsyncservice
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bss.rule=Host(`bss.dev-as-v-14.compulink.local`)"
+      - "traefik.http.routers.bss.entrypoints=web"
+      - "traefik.http.services.bss.loadbalancer.server.port=8080"
+    volumes:
+      - ./data:/data
+    networks:
+      - traefik-net
+
+networks:
+  traefik-net:
+    external: true
